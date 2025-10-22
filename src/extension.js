@@ -1,6 +1,6 @@
 /*
  * Quake Any App for GNOME Shell 45+
- * Copyright 2025 Rustam Qua (forked from Quake Terminal by Diego Dario)
+ * Copyright 2025 Rustam Astafeev (forked from Quake Terminal by Diego Dario)
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by

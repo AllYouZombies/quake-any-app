@@ -7,7 +7,7 @@
     "type": "git",
     "url": "git+https://github.com/AllYouZombies/quake-any-app"
   },
-  "author": "Rustam Qua (forked from Diego Dario)",
+  "author": "Rustam Astafeev (forked from Diego Dario)",
   "license": "GPL-3.0-or-later",
   "type": "module",
   "bugs": {

@@ -152,4 +152,4 @@ GPL-3.0-or-later
 
 ---
 
-Made with ❤️ by [Rustam Qua](https://github.com/AllYouZombies) (forked from [Diego Dario](https://github.com/diegodario88))
+Made with ❤️ by [Rustam Astafeev](https://github.com/AllYouZombies) (forked from [Diego Dario](https://github.com/diegodario88))

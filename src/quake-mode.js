@@ -1,6 +1,6 @@
 /*
  * Quake Any App for GNOME Shell 45+
- * Copyright 2025 Rustam Qua (forked from Quake Terminal by Diego Dario)
+ * Copyright 2025 Rustam Astafeev (forked from Quake Terminal by Diego Dario)
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -49,13 +49,6 @@ export const QuakeMode = class {
    * @param {Gio.Settings} settings - The Gio.Settings object for configuration.
    */
   constructor(app, settings) {
-    console.log(
-      `*** QuakeAnyApp@constructor - IsWayland = ${Meta.is_wayland_compositor()} ***`
-    );
-    console.log(
-      `*** QuakeAnyApp@constructor - App = ${app.get_name()} ***`
-    );
-
     /**
      *@type {Shell.App}
      */
@@ -124,19 +117,10 @@ export const QuakeMode = class {
 
   get appWindow() {
     if (!this._app) {
-      console.log(
-        `*** QuakeAnyApp@appWindow - There's no application ***`
-      );
-      console.log(
-        `*** QuakeAnyApp@appWindow - Current state ${this._internalState}  ***`
-      );
       return null;
     }
 
     if (!this._appWindow) {
-      console.log(
-        `*** QuakeAnyApp@appWindow - There's no WindowActor, finding one ... ***`
-      );
       let ourWindow = this._app.get_windows().find((w) => {
         /**
          * The window actor for this application window.
@@ -156,9 +140,6 @@ export const QuakeMode = class {
         this._appWindowUnmanagedId = this._appWindow.connect(
           "unmanaged",
           () => {
-            console.log(
-              `*** QuakeAnyApp@Unmanaged Called unmanaged after suspend or lockscreen ***`
-            );
             this.destroy();
           }
         );
@@ -170,7 +151,6 @@ export const QuakeMode = class {
 
   get actor() {
     if (!this.appWindow) {
-      console.log(`*** QuakeAnyApp@actor - There's no appWindow ***`);
       return null;
     }
 
@@ -182,7 +162,6 @@ export const QuakeMode = class {
     const actor = this.appWindow.get_compositor_private();
 
     if (!actor) {
-      console.log(`*** QuakeAnyApp@actor - There's no actor ***`);
       return null;
     }
 
@@ -227,7 +206,6 @@ export const QuakeMode = class {
   }
 
   destroy() {
-    console.log(`*** QuakeAnyApp@destroy - Starting destroy action ***`);
     if (this._sourceTimeoutLoopId) {
       GLib.Source.remove(this._sourceTimeoutLoopId);
       this._sourceTimeoutLoopId = null;
@@ -319,9 +297,6 @@ export const QuakeMode = class {
     }
 
     const info = this._app.get_app_info();
-    console.log(
-      `*** QuakeAnyApp@_launchAppWindow - launching a new window for app ${info.get_name()}  ***`
-    );
     const launchArgsMap =
       this._settings.get_value("launch-args-map").deep_unpack() || {};
 
@@ -343,10 +318,6 @@ export const QuakeMode = class {
           }
 
           if (this._internalState !== QuakeMode.LIFECYCLE.STARTING) {
-            console.log(
-              `*** QuakeAnyApp@_launchAppWindow - Not in STARTING state, ignoring windows-changed signal ***`
-            );
-
             this._app.disconnect(this._appChangedId);
             return;
           }
@@ -378,7 +349,6 @@ export const QuakeMode = class {
           this._appWindowUnmanagedId = this.appWindow.connect(
             "unmanaged",
             () => {
-              console.log(`*** QuakeAnyApp@Unmanaged Called unmanaged ***`);
               this.destroy();
             }
           );
@@ -437,9 +407,6 @@ export const QuakeMode = class {
    */
   _adjustAppWindowPosition() {
     if (!this.appWindow || !this.actor) {
-      console.log(
-        `*** QuakeAnyApp@_adjustAppWindowPosition - No appWindow || actor ***`
-      );
       return;
     }
 
@@ -450,9 +417,6 @@ export const QuakeMode = class {
       /** @type {Meta.WindowActor} */ metaWindowActor
     ) => {
       if (metaWindowActor !== this.actor) {
-        console.log(
-          `*** QuakeAnyApp@mapSignalHandler - ${metaWindowActor.get_name()} is not our actor, skipping. ***`
-        );
         return;
       }
       this.actor.opacity = 0;
@@ -476,14 +440,7 @@ export const QuakeMode = class {
       this._actorStageViewChangedId = this.actor.connect(
         "stage-views-changed",
         () => {
-          console.log(
-            `*** QuakeAnyApp@_adjustAppWindowPosition - State ${this._internalState} ***`
-          );
-
           if (this._internalState !== QuakeMode.LIFECYCLE.CREATED_ACTOR) {
-            console.log(
-              `*** QuakeAnyApp@_adjustAppWindowPosition - Not in CREATED_ACTOR state, ignoring stage-views-changed signal ***`
-            );
             this.actor.disconnect(this._actorStageViewChangedId);
             this._actorStageViewChangedId = null;
             return;
