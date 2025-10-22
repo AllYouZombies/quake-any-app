@@ -1,3 +1,21 @@
+/*
+ * Quake Any App for GNOME Shell 45+
+ * Copyright 2025 Rustam Qua (forked from Quake Terminal by Diego Dario)
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
 import Adw from "gi://Adw";
 import GObject from "gi://GObject";
 import GLib from "gi://GLib";
@@ -570,7 +588,6 @@ export default class QuakeTerminalPreferences extends ExtensionPreferences {
     });
 
     [_("Top"), _("Bottom"), _("Left"), _("Right")].forEach((edge, idx) => {
-      const edgeValue = ["top", "bottom", "left", "right"][idx];
       // @ts-ignore
       const screenEdgeItem = new GenericObjectModel(edge, idx);
       screenEdgeModel.append(screenEdgeItem);
@@ -617,7 +634,6 @@ export default class QuakeTerminalPreferences extends ExtensionPreferences {
     });
 
     [_("Percent"), _("Pixels")].forEach((unit, idx) => {
-      const unitValue = ["percent", "pixels"][idx];
       // @ts-ignore
       const unitItem = new GenericObjectModel(unit, idx);
       verticalSizeUnitModel.append(unitItem);
@@ -686,7 +702,6 @@ export default class QuakeTerminalPreferences extends ExtensionPreferences {
     });
 
     [_("Percent"), _("Pixels")].forEach((unit, idx) => {
-      const unitValue = ["percent", "pixels"][idx];
       // @ts-ignore
       const unitItem = new GenericObjectModel(unit, idx);
       horizontalSizeUnitModel.append(unitItem);
