@@ -14,15 +14,14 @@ const GioUnix = await import("gi://GioUnix")
   .then((module) => module.default)
   .catch(() => Gio);
 
-const ABOUT_TERMINAL_APPLICATION_HELP_DIALOG = `
+const ABOUT_APPLICATION_HELP_DIALOG = `
 <markup>
   <span font_desc='11'>When this row is activated, the system searches for installed apps based on specific criteria that each app must meet:</span>
 
   <span font_desc='10'> - A valid <a href="https://developer.gnome.org/documentation/tutorials/application-id.html">Application ID</a>.</span>
   <span font_desc='10'> - Should not be hidden.</span>
-  <span font_desc='10'> - Must have <i>terminal</i> specified in its categories metadata.</span>
 
-  <small>This process ensures accurate and relevant results. For help and more information, refer to <a href="https://github.com/diegodario88/quake-terminal">Quake Terminal</a>.</small>
+  <small>This allows you to select any application to display in Quake mode. For help and more information, refer to <a href="https://github.com/rustamqua/quake-any-app">Quake Any App</a>.</small>
 </markup>
 `;
 
@@ -59,7 +58,7 @@ const isValidAccel = (
 };
 
 /**
- * @param {Gio.DesktopAppInfo} app - Selected terminal application
+ * @param {Gio.DesktopAppInfo} app - Selected application
  */
 function getAppIconImage(app) {
   const appIconString = app?.get_icon()?.to_string() ?? "icon-missing";
@@ -120,7 +119,7 @@ const AppChooserDialog = GObject.registerClass(
         modal: true,
         transientFor: parent,
         destroyWithParent: false,
-        title: "Select terminal application",
+        title: "Select application",
       });
 
       this.set_default_size(
@@ -135,7 +134,7 @@ const AppChooserDialog = GObject.registerClass(
     }
 
     /**
-     * @param {Gio.DesktopAppInfo} app - The terminal application
+     * @param {Gio.DesktopAppInfo} app - The application
      */
     _addAppRow(app) {
       const row = new Adw.ActionRow({
@@ -166,8 +165,8 @@ export default class QuakeTerminalPreferences extends ExtensionPreferences {
     const settings = this.getSettings();
 
     const page = new Adw.PreferencesPage();
-    page.set_title(_("Quake Terminal Settings"));
-    page.set_name("quake-terminal-preferences");
+    page.set_title(_("Quake Any App Settings"));
+    page.set_name("quake-app-preferences");
 
     const applicationSettingsGroup = new Adw.PreferencesGroup();
     applicationSettingsGroup.set_title(_("Application"));
@@ -175,24 +174,24 @@ export default class QuakeTerminalPreferences extends ExtensionPreferences {
 
     page.add(applicationSettingsGroup);
 
-    // Application Terminal ID
-    const terminalApplicationId = settings.get_string("terminal-id");
+    // Application Application ID
+    const applicationApplicationId = settings.get_string("app-id");
 
     const defaultTerminalApplicationId = settings
-      .get_default_value("terminal-id")
+      .get_default_value("app-id")
       .deep_unpack();
 
     const applicationIDRow = new Adw.ActionRow({
-      title: _("Terminal Application"),
+      title: _("Application"),
     });
 
     let selectedTerminalEmulator = GioUnix.DesktopAppInfo.new(
-      terminalApplicationId
+      applicationApplicationId
     );
 
     if (!selectedTerminalEmulator) {
       console.warn(
-        `Unable to locate a terminal application with the specified ID (${terminalApplicationId}). Falling back to the default terminal (${defaultTerminalApplicationId}).`
+        `Unable to locate a application with the specified ID (${applicationApplicationId}). Falling back to the default application (${defaultTerminalApplicationId}).`
       );
 
       selectedTerminalEmulator = GioUnix.DesktopAppInfo.new(
@@ -202,11 +201,11 @@ export default class QuakeTerminalPreferences extends ExtensionPreferences {
 
     if (!selectedTerminalEmulator) {
       console.warn(
-        `Unable to locate default terminal application (${defaultTerminalApplicationId}).`
+        `Unable to locate default application (${defaultTerminalApplicationId}).`
       );
 
       applicationIDRow.set_subtitle(
-        `${defaultTerminalApplicationId} not found. Click here to select another terminal app.`
+        `${defaultTerminalApplicationId} not found. Click here to select another application app.`
       );
     } else {
       applicationIDRow.set_subtitle(selectedTerminalEmulator.get_id());
@@ -227,7 +226,7 @@ export default class QuakeTerminalPreferences extends ExtensionPreferences {
         wrap: true,
         useMarkup: true,
         justify: Gtk.Justification.FILL,
-        label: ABOUT_TERMINAL_APPLICATION_HELP_DIALOG,
+        label: ABOUT_APPLICATION_HELP_DIALOG,
       });
 
       const helpDialogScrolledWindow = new Gtk.ScrolledWindow({
@@ -244,7 +243,7 @@ export default class QuakeTerminalPreferences extends ExtensionPreferences {
       helpButtonToolbarView.add_top_bar(new Adw.HeaderBar());
 
       const helpDialog = new Adw.Window({
-        title: "About terminal application",
+        title: "About application",
         modal: true,
         // @ts-ignore
         transient_for: page.get_root(),
@@ -263,22 +262,22 @@ export default class QuakeTerminalPreferences extends ExtensionPreferences {
     applicationIDRow.add_suffix(helpButton);
     applicationIDRow.activatable_widget = gtkIcon;
 
-    // Custom terminal arguments per application
+    // Custom application arguments per application
     const launchArgsMap =
       settings.get_value("launch-args-map").deep_unpack() || {};
-    const currentAppArgs = launchArgsMap[terminalApplicationId] || "";
+    const currentAppArgs = launchArgsMap[applicationApplicationId] || "";
 
     const launchArgRow = new Adw.EntryRow({
       title: _("Launch Options"),
       tooltip_text: _(
-        "Optional command-line arguments to customize how the terminal starts for this application. For example: -o font_size=18"
+        "Optional command-line arguments to customize how the application starts for this application. For example: -o font_size=18"
       ),
       text: currentAppArgs,
       show_apply_button: true,
     });
 
     launchArgRow.connect("apply", () => {
-      const applyTerminalApplicationId = settings.get_string("terminal-id");
+      const applyTerminalApplicationId = settings.get_string("app-id");
       const applyLaunchArgsMap =
         settings.get_value("launch-args-map").deep_unpack() || {};
 
@@ -307,13 +306,7 @@ export default class QuakeTerminalPreferences extends ExtensionPreferences {
             return false;
           }
 
-          // @ts-ignore
-          const appCategories = app.get_categories();
-          if (!appCategories) {
-            return false;
-          }
-
-          return appCategories.toLowerCase().includes("terminal");
+          return true;
         })
         .sort((a, b) => a.get_id().localeCompare(b.get_id()));
 
@@ -321,7 +314,7 @@ export default class QuakeTerminalPreferences extends ExtensionPreferences {
       const appChooserDialog = new AppChooserDialog(selectableApps, window);
 
       appChooserDialog.connect("app-selected", (_source, appId) => {
-        settings.set_string("terminal-id", appId);
+        settings.set_string("app-id", appId);
 
         const newSelectedTerminalEmulator = GioUnix.DesktopAppInfo.new(appId);
         applicationIDRow.set_subtitle(newSelectedTerminalEmulator.get_id());
@@ -349,10 +342,10 @@ export default class QuakeTerminalPreferences extends ExtensionPreferences {
     page.add(generalSettingsGroup);
 
     // Shortcut
-    const shortcutId = "terminal-shortcut";
+    const shortcutId = "app-shortcut";
     const shortcutRow = new Adw.ActionRow({
       title: _("Toggle Shortcut"),
-      subtitle: _("Shortcut to activate the terminal application"),
+      subtitle: _("Shortcut to activate the application"),
     });
 
     const shortcutLabel = new Gtk.ShortcutLabel({
@@ -370,7 +363,7 @@ export default class QuakeTerminalPreferences extends ExtensionPreferences {
       const ctl = new Gtk.EventControllerKey();
 
       const statusPage = new Adw.StatusPage({
-        description: _("Enter new shortcut to toggle Quake Terminal"),
+        description: _("Enter new shortcut to toggle Quake Any App"),
         icon_name: "preferences-desktop-keyboard-shortcuts-symbolic",
       });
 
@@ -432,9 +425,9 @@ export default class QuakeTerminalPreferences extends ExtensionPreferences {
 
     // Auto Hide Window
     const autoHideWindowRow = new Adw.SwitchRow({
-      title: _("Auto Hide Terminal"),
+      title: _("Auto Hide App"),
       subtitle: _(
-        "When enabled, this hides the Terminal window when it loses focus"
+        "When enabled, this hides the Application window when it loses focus"
       ),
     });
     generalSettingsGroup.add(autoHideWindowRow);
@@ -450,7 +443,7 @@ export default class QuakeTerminalPreferences extends ExtensionPreferences {
     const renderOnCurrentMonitor = new Adw.SwitchRow({
       title: _("Show on the current Display"),
       subtitle: _(
-        "When enabled, the Terminal will be shown on the Display that currently has the mouse pointer"
+        "When enabled, the Application will be shown on the Display that currently has the mouse pointer"
       ),
     });
     generalSettingsGroup.add(renderOnCurrentMonitor);
@@ -466,7 +459,7 @@ export default class QuakeTerminalPreferences extends ExtensionPreferences {
     const renderOnPrimaryMonitor = new Adw.SwitchRow({
       title: _("Show on the primary Display"),
       subtitle: _(
-        "When enabled, the Terminal will be shown on the Display set as Primary in Gnome Display settings"
+        "When enabled, the Application will be shown on the Display set as Primary in Gnome Display settings"
       ),
     });
     generalSettingsGroup.add(renderOnPrimaryMonitor);
@@ -496,7 +489,7 @@ export default class QuakeTerminalPreferences extends ExtensionPreferences {
     }
     const monitorRow = new Adw.ComboRow({
       title: _("Display"),
-      subtitle: _("Which display should the terminal be rendered on"),
+      subtitle: _("Which display should the application be rendered on"),
       model: monitorScreenModel,
       expression: Gtk.PropertyExpression.new(
         GenericObjectModel.$gtype,
@@ -571,18 +564,99 @@ export default class QuakeTerminalPreferences extends ExtensionPreferences {
 
     page.add(positionSettingsGroup);
 
-    // Vertical Size as percentage
+    // Screen Edge Selection
+    const screenEdgeModel = new Gio.ListStore({
+      item_type: GenericObjectModel.$gtype,
+    });
+
+    [_("Top"), _("Bottom"), _("Left"), _("Right")].forEach((edge, idx) => {
+      const edgeValue = ["top", "bottom", "left", "right"][idx];
+      // @ts-ignore
+      const screenEdgeItem = new GenericObjectModel(edge, idx);
+      screenEdgeModel.append(screenEdgeItem);
+    });
+
+    const currentEdge = settings.get_string("screen-edge");
+    const edgeIndex = ["top", "bottom", "left", "right"].indexOf(currentEdge);
+
+    const screenEdgeRow = new Adw.ComboRow({
+      title: _("Screen Edge"),
+      subtitle: _("Which edge of the screen the window should appear from"),
+      model: screenEdgeModel,
+      expression: Gtk.PropertyExpression.new(
+        GenericObjectModel.$gtype,
+        null,
+        "name"
+      ),
+      selected: edgeIndex >= 0 ? edgeIndex : 0,
+    });
+
+    positionSettingsGroup.add(screenEdgeRow);
+
+    screenEdgeRow.connect("notify::selected", () => {
+      const edges = ["top", "bottom", "left", "right"];
+      settings.set_string("screen-edge", edges[screenEdgeRow.selected]);
+    });
+
+    // Vertical Size
     const verticalSpinRow = new Adw.SpinRow({
       title: _("Vertical Size"),
-      subtitle: _("Terminal vertical distance as a percentage"),
+      subtitle: _("Application vertical size"),
       adjustment: new Gtk.Adjustment({
         lower: 10,
         step_increment: 5,
-        upper: 100,
+        upper: 3840,
         value: settings.get_int("vertical-size"),
       }),
     });
     positionSettingsGroup.add(verticalSpinRow);
+
+    // Vertical Size Unit Selector
+    const verticalSizeUnitModel = new Gio.ListStore({
+      item_type: GenericObjectModel.$gtype,
+    });
+
+    [_("Percent"), _("Pixels")].forEach((unit, idx) => {
+      const unitValue = ["percent", "pixels"][idx];
+      // @ts-ignore
+      const unitItem = new GenericObjectModel(unit, idx);
+      verticalSizeUnitModel.append(unitItem);
+    });
+
+    const currentVerticalUnit = settings.get_string("vertical-size-unit");
+    const verticalUnitIndex = ["percent", "pixels"].indexOf(currentVerticalUnit);
+
+    const verticalSizeUnitRow = new Adw.ComboRow({
+      title: _("Vertical Size Unit"),
+      subtitle: _("Unit for vertical size measurement"),
+      model: verticalSizeUnitModel,
+      expression: Gtk.PropertyExpression.new(
+        GenericObjectModel.$gtype,
+        null,
+        "name"
+      ),
+      selected: verticalUnitIndex >= 0 ? verticalUnitIndex : 0,
+    });
+
+    positionSettingsGroup.add(verticalSizeUnitRow);
+
+    // Update spin row bounds when unit changes
+    const updateVerticalBounds = () => {
+      const unit = settings.get_string("vertical-size-unit");
+      if (unit === "pixels") {
+        verticalSpinRow.adjustment.set_upper(3840);
+        verticalSpinRow.set_subtitle(_("Application vertical size in pixels"));
+      } else {
+        verticalSpinRow.adjustment.set_upper(100);
+        verticalSpinRow.set_subtitle(_("Application vertical size in percent"));
+      }
+    };
+
+    verticalSizeUnitRow.connect("notify::selected", () => {
+      const units = ["percent", "pixels"];
+      settings.set_string("vertical-size-unit", units[verticalSizeUnitRow.selected]);
+      updateVerticalBounds();
+    });
 
     verticalSpinRow.connect("changed", () => {
       settings.set_int("vertical-size", verticalSpinRow.get_value());
@@ -591,18 +665,67 @@ export default class QuakeTerminalPreferences extends ExtensionPreferences {
       verticalSpinRow.set_value(settings.get_int("vertical-size"));
     });
 
-    // Horizontal Size as percentage
+    updateVerticalBounds();
+
+    // Horizontal Size
     const horizontalSpinRow = new Adw.SpinRow({
       title: _("Horizontal Size"),
-      subtitle: _("Terminal horizontal distance as a percentage"),
+      subtitle: _("Application horizontal size"),
       adjustment: new Gtk.Adjustment({
         lower: 30,
         step_increment: 5,
-        upper: 100,
+        upper: 7680,
         value: settings.get_int("horizontal-size"),
       }),
     });
     positionSettingsGroup.add(horizontalSpinRow);
+
+    // Horizontal Size Unit Selector
+    const horizontalSizeUnitModel = new Gio.ListStore({
+      item_type: GenericObjectModel.$gtype,
+    });
+
+    [_("Percent"), _("Pixels")].forEach((unit, idx) => {
+      const unitValue = ["percent", "pixels"][idx];
+      // @ts-ignore
+      const unitItem = new GenericObjectModel(unit, idx);
+      horizontalSizeUnitModel.append(unitItem);
+    });
+
+    const currentHorizontalUnit = settings.get_string("horizontal-size-unit");
+    const horizontalUnitIndex = ["percent", "pixels"].indexOf(currentHorizontalUnit);
+
+    const horizontalSizeUnitRow = new Adw.ComboRow({
+      title: _("Horizontal Size Unit"),
+      subtitle: _("Unit for horizontal size measurement"),
+      model: horizontalSizeUnitModel,
+      expression: Gtk.PropertyExpression.new(
+        GenericObjectModel.$gtype,
+        null,
+        "name"
+      ),
+      selected: horizontalUnitIndex >= 0 ? horizontalUnitIndex : 0,
+    });
+
+    positionSettingsGroup.add(horizontalSizeUnitRow);
+
+    // Update spin row bounds when unit changes
+    const updateHorizontalBounds = () => {
+      const unit = settings.get_string("horizontal-size-unit");
+      if (unit === "pixels") {
+        horizontalSpinRow.adjustment.set_upper(7680);
+        horizontalSpinRow.set_subtitle(_("Application horizontal size in pixels"));
+      } else {
+        horizontalSpinRow.adjustment.set_upper(100);
+        horizontalSpinRow.set_subtitle(_("Application horizontal size in percent"));
+      }
+    };
+
+    horizontalSizeUnitRow.connect("notify::selected", () => {
+      const units = ["percent", "pixels"];
+      settings.set_string("horizontal-size-unit", units[horizontalSizeUnitRow.selected]);
+      updateHorizontalBounds();
+    });
 
     horizontalSpinRow.connect("changed", () => {
       settings.set_int("horizontal-size", horizontalSpinRow.get_value());
@@ -611,21 +734,23 @@ export default class QuakeTerminalPreferences extends ExtensionPreferences {
       horizontalSpinRow.set_value(settings.get_int("horizontal-size"));
     });
 
-    // Horizontal Alignment
-    const horizontalAlignmentModel = new Gio.ListStore({
+    updateHorizontalBounds();
+
+    // Alignment (smart: horizontal for top/bottom, vertical for left/right)
+    const alignmentModel = new Gio.ListStore({
       item_type: GenericObjectModel.$gtype,
     });
 
-    [_("Left"), _("Right"), _("Center")].forEach((hAlign, idx) => {
+    [_("Left/Top"), _("Right/Bottom"), _("Center")].forEach((align, idx) => {
       // @ts-ignore
-      const horizontalAlignment = new GenericObjectModel(hAlign, idx);
-      horizontalAlignmentModel.append(horizontalAlignment);
+      const alignmentItem = new GenericObjectModel(align, idx);
+      alignmentModel.append(alignmentItem);
     });
 
     const horizontalAlignmentRow = new Adw.ComboRow({
-      title: _("Horizontal Alignment"),
-      subtitle: _("Control the value for horizontal alignment"),
-      model: horizontalAlignmentModel,
+      title: _("Alignment"),
+      subtitle: _("Window alignment (horizontal for top/bottom edges, vertical for left/right edges)"),
+      model: alignmentModel,
       expression: Gtk.PropertyExpression.new(
         GenericObjectModel.$gtype,
         null,
@@ -644,7 +769,7 @@ export default class QuakeTerminalPreferences extends ExtensionPreferences {
     const alwaysOnTopRow = new Adw.SwitchRow({
       title: _("Always On Top"),
       subtitle: _(
-        "When enabled, terminal window will appear on top of all other non-topmost windows"
+        "When enabled, application window will appear on top of all other non-topmost windows"
       ),
     });
     positionSettingsGroup.add(alwaysOnTopRow);
@@ -660,7 +785,7 @@ export default class QuakeTerminalPreferences extends ExtensionPreferences {
     const skipTaskbarRow = new Adw.SwitchRow({
       title: _("Hide In Certain Modes"),
       subtitle: _(
-        "When enabled, the terminal window will not appear in overview mode or when using Alt+Tab."
+        "When enabled, the application window will not appear in overview mode or when using Alt+Tab."
       ),
     });
     positionSettingsGroup.add(skipTaskbarRow);

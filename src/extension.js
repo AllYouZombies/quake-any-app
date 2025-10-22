@@ -1,6 +1,6 @@
 /*
- * Quake Terminal for GNOME Shell 45+
- * Copyright 2025 Diego Dario
+ * Quake Any App for GNOME Shell 45+
+ * Copyright 2025 Rustam Qua (forked from Quake Terminal by Diego Dario)
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -27,26 +27,26 @@ import {
 import * as Main from "resource:///org/gnome/shell/ui/main.js";
 import { QuakeMode } from "./quake-mode.js";
 
-export default class QuakeTerminalExtension extends Extension {
+export default class QuakeAnyAppExtension extends Extension {
   enable() {
     this._settings = this.getSettings();
     this._appSystem = Shell.AppSystem.get_default();
     this._quakeMode = null;
 
     Main.wm.addKeybinding(
-      "terminal-shortcut",
+      "app-shortcut",
       this._settings,
       Meta.KeyBindingFlags.IGNORE_AUTOREPEAT,
       Shell.ActionMode.NORMAL |
         Shell.ActionMode.OVERVIEW |
         Shell.ActionMode.POPUP,
       () =>
-        this._handleQuakeModeTerminal().catch((reason) => console.log(reason))
+        this._handleQuakeModeApp().catch((reason) => console.log(reason))
     );
   }
 
   disable() {
-    Main.wm.removeKeybinding("terminal-shortcut");
+    Main.wm.removeKeybinding("app-shortcut");
 
     if (this._quakeMode) {
       this._quakeMode.destroy();
@@ -57,7 +57,7 @@ export default class QuakeTerminalExtension extends Extension {
     this._quakeMode = null;
   }
 
-  _handleQuakeModeTerminal() {
+  _handleQuakeModeApp() {
     if (this._quakeMode) {
       if (
         this._quakeMode._internalState === QuakeMode.LIFECYCLE.STARTING ||
@@ -71,21 +71,21 @@ export default class QuakeTerminalExtension extends Extension {
       !this._quakeMode ||
       this._quakeMode._internalState === QuakeMode.LIFECYCLE.DEAD
     ) {
-      const terminalId = this._settings.get_string("terminal-id");
+      const appId = this._settings.get_string("app-id");
 
-      if (!terminalId) {
-        Main.notify(_(`Select an application in Quake Terminal preferences.`));
+      if (!appId) {
+        Main.notify(_(`Select an application in Quake Any App preferences.`));
         return;
       }
 
-      const terminal = this._appSystem.lookup_app(terminalId);
+      const app = this._appSystem.lookup_app(appId);
 
-      if (!terminal) {
-        Main.notify(_(`No terminal found with id ${terminalId}. Skipping ...`));
+      if (!app) {
+        Main.notify(_(`No application found with id ${appId}. Skipping ...`));
         return;
       }
 
-      this._quakeMode = new QuakeMode(terminal, this._settings);
+      this._quakeMode = new QuakeMode(app, this._settings);
       return this._quakeMode.toggle();
     }
 

@@ -1,5 +1,5 @@
-NAME=quake-terminal
-DOMAIN=diegodario88.github.io
+NAME=quake-any-app
+DOMAIN=rustamqua.github.io
 EXTENSION_ID=$(NAME)@$(DOMAIN)
 PACKED_EXTENSION_FILE=$(EXTENSION_ID).shell-extension.zip
 

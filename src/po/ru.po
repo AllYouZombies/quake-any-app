@@ -75,7 +75,7 @@ msgstr "Установить комбинацию клавш"
 
 #: ../src/prefs.js:430
 #: ../src/schemas/org.gnome.shell.extensions.quake-terminal.gschema.xml:47
-msgid "Auto Hide Terminal"
+msgid "Auto Hide App"
 msgstr "Авто скрытие терминала"
 
 #: ../src/prefs.js:432

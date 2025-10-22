@@ -1,4 +1,4 @@
-# GNOME Shell Extension - Quake Terminal
+# GNOME Shell Extension - Quake Any App
 
 ![License: GPL v3](https://img.shields.io/badge/License-GPL%20v3-blue.svg)
 
@@ -6,54 +6,57 @@
   <img src="assets/terminal.png" width="200" alt="A black terminal emulator icon with traditional bash symbol" />
 </p>
 
-<p align="center"><em>Quake Terminal: A drop-down interface for GNOME Shell that launches your preferred terminal emulator in Quake mode, inspired by classic Quake games.</em></p>
-
-## Demo
-
-https://github.com/diegodario88/quake-terminal/assets/25825145/eb49d9a2-e918-4f22-8ddb-25486c2cd91b
-
-## Settings
-
-![Settings](assets/screenshot-settings.png)
+<p align="center"><em>Quake Any App: A drop-down interface for GNOME Shell that launches any application in Quake mode from any screen edge, inspired by classic Quake games.</em></p>
 
 ## Overview
 
-The GNOME Shell Extension - Quake Terminal enhances your desktop by providing a drop-down interface, inspired by classic Quake games, that can instantly launch your preferred terminal emulator over any workspace.
+The GNOME Shell Extension - Quake Any App enhances your desktop by providing a drop-down interface, inspired by classic Quake games, that can instantly launch **any application** from **any screen edge** over any workspace.
 
-Key features include:
+> **Forked from**: [Quake Terminal](https://github.com/diegodario88/quake-terminal) by Diego Dario
 
-- **Quick Activation:** Instantly summon your preferred terminal emulator in Quake mode using a single keyboard shortcut or a customizable key combination for fast, efficient access.
-- **Workspace Integration:** The terminal remains hidden in overview mode and during Alt+Tab switching, ensuring it never obstructs your workflow when not in use.
-- **Multi-Display Support:** Choose which display the Quake Terminal appears on, offering flexibility for multi-monitor setups.
-- **Custom Arguments:** Launch your terminal emulator with custom arguments when opened by Quake Terminal, allowing tailored configurations.
-- **Aesthetic Animations:** Smooth sizing and animation timing for a polished user experience.
+### New Features
 
-> **Note:** This extension does not provide a terminal emulator. It works with the terminal application already installed on your system.
+- **Any Application:** Launch any installed application (not just terminals) in Quake mode
+- **Four Screen Edges:** Choose from top, bottom, left, or right screen edge
+- **Flexible Sizing:** Set window size in either percentages or pixels for both width and height independently
+- **Smart Alignment:** Automatic alignment behavior based on edge (horizontal alignment for top/bottom, vertical for left/right)
+
+### Key Features
+
+- **Quick Activation:** Instantly summon your preferred application in Quake mode using a single keyboard shortcut or a customizable key combination for fast, efficient access.
+- **Workspace Integration:** The application remains hidden in overview mode and during Alt+Tab switching, ensuring it never obstructs your workflow when not in use.
+- **Multi-Display Support:** Choose which display the Quake application appears on, offering flexibility for multi-monitor setups.
+- **Custom Arguments:** Launch your application with custom arguments when opened by Quake Any App, allowing tailored configurations.
+- **Aesthetic Animations:** Smooth sizing and animation timing from any screen edge for a polished user experience.
+
+> **Note:** This extension does not provide applications. It works with applications already installed on your system.
 
 ---
 
 ## Installation
 
-### Via GNOME Extensions Website
-
-You can easily install the extension from the GNOME Extensions website:
-
-[![Get it on GNOME Extensions](assets/get_it_on_gnome_extensions.png)](https://extensions.gnome.org/extension/6307/quake-terminal)
-
 ### Manual Installation
-
-If you prefer manual installation, follow these steps:
 
 1. Clone this repository to your system:
 
 ```bash
-git clone https://github.com/diegodario88/quake-terminal.git
+git clone https://github.com/rustamqua/quake-any-app.git
 ```
 
 2. Run the provided installation script:
 
 ```bash
+cd quake-any-app
+npm install
 make install
+```
+
+3. Restart GNOME Shell (Alt+F2, type 'r', press Enter on X11, or log out/in on Wayland)
+
+4. Enable the extension using GNOME Extensions app or:
+
+```bash
+gnome-extensions enable quake-any-app@rustamqua.github.io
 ```
 
 ## Contributing
@@ -132,19 +135,21 @@ journalctl -f -o cat /usr/bin/gjs
 - Watch GSettings updates:
 
 ```bash
-dconf watch /org/gnome/shell/extensions/quake-terminal/
+dconf watch /org/gnome/shell/extensions/quake-any-app/
 ```
 
 ## GJS docs
 
 GNOME Shell Extensions documentation and tutorial: https://gjs.guide/extensions/
 
-## Like this Extension?
+## Credits
 
-If you want to help me with this, consider buying me a coffee. :)
+This project is a fork of [Quake Terminal](https://github.com/diegodario88/quake-terminal) by Diego Dario. Many thanks to Diego for creating the original extension!
 
-[![ko-fi](https://ko-fi.com/img/githubbutton_sm.svg)](https://ko-fi.com/Y8Y8Q12UV)
+## License
+
+GPL-3.0-or-later
 
 ---
 
-Made with ❤️ by [Diego Dario](https://github.com/diegodario88)
+Made with ❤️ by [Rustam Qua](https://github.com/rustamqua) (forked from [Diego Dario](https://github.com/diegodario88))

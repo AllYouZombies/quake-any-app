@@ -10,8 +10,8 @@ const STARTUP_TIMER_IN_SECONDS = 5;
 /**
  * Quake Mode Module
  *
- * This module provides a Quake mode for managing a terminal window with animations and specific behavior.
- * It allows showing and hiding a terminal window with animation effects.
+ * This module provides a Quake mode for managing application windows with animations and specific behavior.
+ * It allows showing and hiding application windows with animation effects from any screen edge.
  *
  * @module QuakeMode
  */
@@ -27,35 +27,35 @@ export const QuakeMode = class {
   /**
    * Creates a new QuakeMode instance.
    *
-   * @param {Shell.App} terminal - The terminal application instance.
+   * @param {Shell.App} app - The application instance.
    * @param {Gio.Settings} settings - The Gio.Settings object for configuration.
    */
-  constructor(terminal, settings) {
+  constructor(app, settings) {
     console.log(
-      `*** QuakeTerminal@constructor - IsWayland = ${Meta.is_wayland_compositor()} ***`
+      `*** QuakeAnyApp@constructor - IsWayland = ${Meta.is_wayland_compositor()} ***`
     );
     console.log(
-      `*** QuakeTerminal@constructor - Terminal App = ${terminal.get_name()} ***`
+      `*** QuakeAnyApp@constructor - App = ${app.get_name()} ***`
     );
 
     /**
      *@type {Shell.App}
      */
-    this._terminal = terminal;
+    this._app = app;
     this._settings = settings;
     this._internalState = QuakeMode.LIFECYCLE.READY;
 
     this._sourceTimeoutLoopId = null;
-    this._terminalWindowUnmanagedId = null;
-    this._terminalWindowFocusId = null;
+    this._appWindowUnmanagedId = null;
+    this._appWindowFocusId = null;
     this._wmMapSignalId = null;
-    this._terminalChangedId = null;
+    this._appChangedId = null;
     this._actorStageViewChangedId = null;
 
     /**
      *@type {Meta.Window}
      */
-    this._terminalWindow = null;
+    this._appWindow = null;
     this._isTaskbarConfigured = null;
 
     /** We will monkey-patch this method. Let's store the original one. */
@@ -72,12 +72,12 @@ export const QuakeMode = class {
      */
     this._settingsWatchingListIds = [];
 
-    ["vertical-size", "horizontal-size", "horizontal-alignment"].forEach(
+    ["vertical-size", "horizontal-size", "horizontal-alignment", "vertical-size-unit", "horizontal-size-unit", "screen-edge"].forEach(
       (prefAdjustment) => {
         const settingsId = settings.connect(
           `changed::${prefAdjustment}`,
           () => {
-            this._fitTerminalToMainMonitor();
+            this._fitWindowToMonitor();
           }
         );
 
@@ -104,42 +104,42 @@ export const QuakeMode = class {
     this._settingsWatchingListIds.push(skipTaskbarSettingsId);
   }
 
-  get terminalWindow() {
-    if (!this._terminal) {
+  get appWindow() {
+    if (!this._app) {
       console.log(
-        `*** QuakeTerminal@terminalWindow - There's no terminal application ***`
+        `*** QuakeAnyApp@appWindow - There's no application ***`
       );
       console.log(
-        `*** QuakeTerminal@terminalWindow - Current state ${this._internalState}  ***`
+        `*** QuakeAnyApp@appWindow - Current state ${this._internalState}  ***`
       );
       return null;
     }
 
-    if (!this._terminalWindow) {
+    if (!this._appWindow) {
       console.log(
-        `*** QuakeTerminal@terminalWindow - There's no WindowActor, finding one ... ***`
+        `*** QuakeAnyApp@appWindow - There's no WindowActor, finding one ... ***`
       );
-      let ourWindow = this._terminal.get_windows().find((w) => {
+      let ourWindow = this._app.get_windows().find((w) => {
         /**
-         * The window actor for this terminal window.
+         * The window actor for this application window.
          *
          * @type {Meta.WindowActor & { ease: Function }}
          */
         const actor = w.get_compositor_private();
-        return actor.get_name() === "quake-terminal" && w.is_alive;
+        return actor.get_name() === "quake-any-app" && w.is_alive;
       });
 
       if (!ourWindow) {
         return null;
       }
 
-      this._terminalWindow = ourWindow;
-      if (!this._terminalWindowUnmanagedId) {
-        this._terminalWindowUnmanagedId = this._terminalWindow.connect(
+      this._appWindow = ourWindow;
+      if (!this._appWindowUnmanagedId) {
+        this._appWindowUnmanagedId = this._appWindow.connect(
           "unmanaged",
           () => {
             console.log(
-              `*** QuakeTerminal@Unmanaged Called unmanaged after suspend or lockscreen ***`
+              `*** QuakeAnyApp@Unmanaged Called unmanaged after suspend or lockscreen ***`
             );
             this.destroy();
           }
@@ -147,24 +147,24 @@ export const QuakeMode = class {
       }
     }
 
-    return this._terminalWindow;
+    return this._appWindow;
   }
 
   get actor() {
-    if (!this.terminalWindow) {
-      console.log(`*** QuakeTerminal@actor - There's no terminalWindow ***`);
+    if (!this.appWindow) {
+      console.log(`*** QuakeAnyApp@actor - There's no appWindow ***`);
       return null;
     }
 
     /**
-     * The window actor for this terminal window.
+     * The window actor for this application window.
      *
      * @type {Meta.WindowActor & { ease: Function }}
      */
-    const actor = this.terminalWindow.get_compositor_private();
+    const actor = this.appWindow.get_compositor_private();
 
     if (!actor) {
-      console.log(`*** QuakeTerminal@actor - There's no actor ***`);
+      console.log(`*** QuakeAnyApp@actor - There's no actor ***`);
       return null;
     }
 
@@ -209,7 +209,7 @@ export const QuakeMode = class {
   }
 
   destroy() {
-    console.log(`*** QuakeTerminal@destroy - Starting destroy action ***`);
+    console.log(`*** QuakeAnyApp@destroy - Starting destroy action ***`);
     if (this._sourceTimeoutLoopId) {
       GLib.Source.remove(this._sourceTimeoutLoopId);
       this._sourceTimeoutLoopId = null;
@@ -226,19 +226,19 @@ export const QuakeMode = class {
       this._actorStageViewChangedId = null;
     }
 
-    if (this._terminalWindowUnmanagedId && this.terminalWindow) {
-      this.terminalWindow.disconnect(this._terminalWindowUnmanagedId);
-      this._terminalWindowUnmanagedId = null;
+    if (this._appWindowUnmanagedId && this.appWindow) {
+      this.appWindow.disconnect(this._appWindowUnmanagedId);
+      this._appWindowUnmanagedId = null;
     }
 
-    if (this._terminalChangedId && this._terminal) {
-      this._terminal.disconnect(this._terminalChangedId);
-      this._terminalChangedId = null;
+    if (this._appChangedId && this._app) {
+      this._app.disconnect(this._appChangedId);
+      this._appChangedId = null;
     }
 
-    if (this._terminalWindowFocusId) {
-      Shell.Global.get().display.disconnect(this._terminalWindowFocusId);
-      this._terminalWindowFocusId = null;
+    if (this._appWindowFocusId) {
+      Shell.Global.get().display.disconnect(this._appWindowFocusId);
+      this._appWindowFocusId = null;
     }
 
     if (this._wmMapSignalId) {
@@ -247,8 +247,8 @@ export const QuakeMode = class {
     }
 
     this._settingsWatchingListIds = [];
-    this._terminal = null;
-    this._terminalWindow = null;
+    this._app = null;
+    this._appWindow = null;
     this._internalState = QuakeMode.LIFECYCLE.DEAD;
     this._isTaskbarConfigured = null;
     // @ts-ignore
@@ -256,17 +256,17 @@ export const QuakeMode = class {
   }
 
   /**
-   * Toggles the visibility of the terminal window with animations.
+   * Toggles the visibility of the application window with animations.
    *
    * @returns {Promise<void>} A promise that resolves when the toggle operation is complete.
    */
   async toggle() {
-    if (!this.terminalWindow) {
+    if (!this.appWindow) {
       try {
-        await this._launchTerminalWindow();
-        this._adjustTerminalWindowPosition();
+        await this._launchAppWindow();
+        this._adjustAppWindowPosition();
       } catch (error) {
-        console.log(`*** QuakeTerminal@toggle - Catch error ${error} ***`);
+        console.log(`*** QuakeAnyApp@toggle - Catch error ${error} ***`);
         this.destroy();
         return;
       }
@@ -276,16 +276,16 @@ export const QuakeMode = class {
       this._configureSkipTaskbarProperty();
     }
 
-    if (this.terminalWindow.has_focus()) {
-      return this._hideTerminalWithAnimationBottomUp();
+    if (this.appWindow.has_focus()) {
+      return this._hideWindowWithAnimation();
     }
 
-    this._fitTerminalToMainMonitor();
-    if (this.terminalWindow.is_hidden()) {
-      return this._showTerminalWithAnimationTopDown();
+    this._fitWindowToMonitor();
+    if (this.appWindow.is_hidden()) {
+      return this._showWindowWithAnimation();
     }
 
-    Main.activateWindow(this.terminalWindow);
+    Main.activateWindow(this.appWindow);
   }
 
   /**
@@ -293,16 +293,16 @@ export const QuakeMode = class {
    *
    * @returns {Promise<boolean>} A promise that resolves when the terminal window is ready.
    */
-  _launchTerminalWindow() {
+  _launchAppWindow() {
     this._internalState = QuakeMode.LIFECYCLE.STARTING;
 
-    if (!this._terminal) {
-      return Promise.reject(Error("Quake-Terminal - Terminal App is null"));
+    if (!this._app) {
+      return Promise.reject(Error("Quake-AnyApp - Application is null"));
     }
 
-    const info = this._terminal.get_app_info();
+    const info = this._app.get_app_info();
     console.log(
-      `*** QuakeTerminal@_launchTerminalWindow - launching a new window for terminal ${info.get_name()}  ***`
+      `*** QuakeAnyApp@_launchAppWindow - launching a new window for app ${info.get_name()}  ***`
     );
     const launchArgsMap =
       this._settings.get_value("launch-args-map").deep_unpack() || {};
@@ -316,40 +316,40 @@ export const QuakeMode = class {
           GLib.Source.remove(this._sourceTimeoutLoopId);
           this._sourceTimeoutLoopId = null;
 
-          if (!this._terminal) {
+          if (!this._app) {
             return reject(
               Error(
-                "Quake-Terminal - Something destroyed the internal reference of terminal app"
+                "Quake-AnyApp - Something destroyed the internal reference of terminal app"
               )
             );
           }
 
           if (this._internalState !== QuakeMode.LIFECYCLE.STARTING) {
             console.log(
-              `*** QuakeTerminal@_launchTerminalWindow - Not in STARTING state, ignoring windows-changed signal ***`
+              `*** QuakeAnyApp@_launchAppWindow - Not in STARTING state, ignoring windows-changed signal ***`
             );
 
-            this._terminal.disconnect(this._terminalChangedId);
+            this._app.disconnect(this._appChangedId);
             return;
           }
 
-          if (this._terminal.get_n_windows() < 1) {
+          if (this._app.get_n_windows() < 1) {
             return reject(
               Error(
-                `Quake-Terminal - App '${this._terminal.id}' is launched but no windows`
+                `Quake-AnyApp - App '${this._app.id}' is launched but no windows`
               )
             );
           }
 
-          const ourWindow = this._terminal.get_windows()[0];
+          const ourWindow = this._app.get_windows()[0];
           /**
            * The window actor for this terminal window.
            *
            * @type {Meta.WindowActor & { ease: Function }}
            */
           const actor = ourWindow.get_compositor_private();
-          actor.set_name("quake-terminal");
-          this._terminalWindow = ourWindow;
+          actor.set_name("quake-any-app");
+          this._appWindow = ourWindow;
           this._internalState = QuakeMode.LIFECYCLE.CREATED_ACTOR;
 
           // Keeps the Terminal out of Overview mode and Alt-Tab window switching
@@ -357,15 +357,15 @@ export const QuakeMode = class {
 
           this._handleAlwaysOnTop();
 
-          this._terminalWindowUnmanagedId = this.terminalWindow.connect(
+          this._appWindowUnmanagedId = this.appWindow.connect(
             "unmanaged",
             () => {
-              console.log(`*** QuakeTerminal@Unmanaged Called unmanaged ***`);
+              console.log(`*** QuakeAnyApp@Unmanaged Called unmanaged ***`);
               this.destroy();
             }
           );
 
-          this._terminalWindowFocusId = Shell.Global.get().display.connect(
+          this._appWindowFocusId = Shell.Global.get().display.connect(
             "notify::focus-window",
             (source) => {
               this._handleHideOnFocusLoss(source);
@@ -374,7 +374,7 @@ export const QuakeMode = class {
           resolve(true);
         };
 
-        this._terminalChangedId = this._terminal.connect(
+        this._appChangedId = this._app.connect(
           "windows-changed",
           shellAppWindowsChangedHandler
         );
@@ -401,7 +401,7 @@ export const QuakeMode = class {
             cancellable.cancel();
             reject(
               Error(
-                `Quake-Terminal: Timeout reached after ${STARTUP_TIMER_IN_SECONDS} seconds while trying to open the Quake terminal`
+                `Quake-AnyApp: Timeout reached after ${STARTUP_TIMER_IN_SECONDS} seconds while trying to open the Quake terminal`
               )
             );
             return GLib.SOURCE_REMOVE;
@@ -417,15 +417,15 @@ export const QuakeMode = class {
    * Adjusts the terminal window's initial position and handles signal connections related
    * to window mapping and sizing.
    */
-  _adjustTerminalWindowPosition() {
-    if (!this.terminalWindow || !this.actor) {
+  _adjustAppWindowPosition() {
+    if (!this.appWindow || !this.actor) {
       console.log(
-        `*** QuakeTerminal@_adjustTerminalWindowPosition - No terminalWindow || actor ***`
+        `*** QuakeAnyApp@_adjustAppWindowPosition - No appWindow || actor ***`
       );
       return;
     }
 
-    this.terminalWindow.stick();
+    this.appWindow.stick();
 
     const mapSignalHandler = (
       /** @type {Shell.WM} */ wm,
@@ -433,7 +433,7 @@ export const QuakeMode = class {
     ) => {
       if (metaWindowActor !== this.actor) {
         console.log(
-          `*** QuakeTerminal@mapSignalHandler - ${metaWindowActor.get_name()} is not our actor, skipping. ***`
+          `*** QuakeAnyApp@mapSignalHandler - ${metaWindowActor.get_name()} is not our actor, skipping. ***`
         );
         return;
       }
@@ -459,12 +459,12 @@ export const QuakeMode = class {
         "stage-views-changed",
         () => {
           console.log(
-            `*** QuakeTerminal@_adjustTerminalWindowPosition - State ${this._internalState} ***`
+            `*** QuakeAnyApp@_adjustAppWindowPosition - State ${this._internalState} ***`
           );
 
           if (this._internalState !== QuakeMode.LIFECYCLE.CREATED_ACTOR) {
             console.log(
-              `*** QuakeTerminal@_adjustTerminalWindowPosition - Not in CREATED_ACTOR state, ignoring stage-views-changed signal ***`
+              `*** QuakeAnyApp@_adjustAppWindowPosition - Not in CREATED_ACTOR state, ignoring stage-views-changed signal ***`
             );
             this.actor.disconnect(this._actorStageViewChangedId);
             this._actorStageViewChangedId = null;
@@ -472,11 +472,11 @@ export const QuakeMode = class {
           }
 
           this._internalState = QuakeMode.LIFECYCLE.RUNNING;
-          this._showTerminalWithAnimationTopDown();
+          this._showWindowWithAnimation();
         }
       );
 
-      this._fitTerminalToMainMonitor();
+      this._fitWindowToMonitor();
     };
 
     this._wmMapSignalId = Shell.Global.get().window_manager.connect(
@@ -493,7 +493,7 @@ export const QuakeMode = class {
     return false;
   }
 
-  _showTerminalWithAnimationTopDown() {
+  _showWindowWithAnimation() {
     if (this._shouldAvoidAnimation()) {
       return;
     }
@@ -505,13 +505,35 @@ export const QuakeMode = class {
     }
 
     parent.set_child_above_sibling(this.actor, null);
-    this.actor.translation_y = this.actor.height * -1;
+
+    const screenEdge = this._settings.get_string("screen-edge");
+
+    // Set initial position based on screen edge
+    switch (screenEdge) {
+      case "top":
+        this.actor.translation_y = this.actor.height * -1;
+        this.actor.translation_x = 0;
+        break;
+      case "bottom":
+        this.actor.translation_y = this.actor.height;
+        this.actor.translation_x = 0;
+        break;
+      case "left":
+        this.actor.translation_x = this.actor.width * -1;
+        this.actor.translation_y = 0;
+        break;
+      case "right":
+        this.actor.translation_x = this.actor.width;
+        this.actor.translation_y = 0;
+        break;
+    }
 
     Main.wm.skipNextEffect(this.actor);
     Main.activateWindow(this.actor.meta_window);
 
     this.actor.ease({
       mode: Clutter.AnimationMode.EASE_IN_QUAD,
+      translation_x: 0,
       translation_y: 0,
       opacity: 255,
       duration: this._settings.get_int("animation-time"),
@@ -521,71 +543,132 @@ export const QuakeMode = class {
     });
   }
 
-  _hideTerminalWithAnimationBottomUp() {
+  _hideWindowWithAnimation() {
     if (this._shouldAvoidAnimation()) {
       return;
     }
 
-    this.actor.ease({
+    const screenEdge = this._settings.get_string("screen-edge");
+    const easeParams = {
       mode: Clutter.AnimationMode.EASE_OUT_QUAD,
-      translation_y: this.actor.height * -1,
       duration: this._settings.get_int("animation-time"),
       onComplete: () => {
         Main.wm.skipNextEffect(this.actor);
         this.actor.meta_window.minimize();
+        this.actor.translation_x = 0;
         this.actor.translation_y = 0;
       },
-    });
+    };
+
+    // Set hide direction based on screen edge
+    switch (screenEdge) {
+      case "top":
+        easeParams.translation_y = this.actor.height * -1;
+        easeParams.translation_x = 0;
+        break;
+      case "bottom":
+        easeParams.translation_y = this.actor.height;
+        easeParams.translation_x = 0;
+        break;
+      case "left":
+        easeParams.translation_x = this.actor.width * -1;
+        easeParams.translation_y = 0;
+        break;
+      case "right":
+        easeParams.translation_x = this.actor.width;
+        easeParams.translation_y = 0;
+        break;
+    }
+
+    this.actor.ease(easeParams);
   }
 
-  _fitTerminalToMainMonitor() {
-    if (!this.terminalWindow) {
+  _fitWindowToMonitor() {
+    if (!this.appWindow) {
       return;
     }
     const monitorDisplayScreenIndex = this.monitorDisplayScreenIndex;
-    const area = this.terminalWindow.get_work_area_for_monitor(
+    const area = this.appWindow.get_work_area_for_monitor(
       monitorDisplayScreenIndex
     );
 
+    const screenEdge = this._settings.get_string("screen-edge");
     const verticalSettingsValue = this._settings.get_int("vertical-size");
     const horizontalSettingsValue = this._settings.get_int("horizontal-size");
+    const verticalSizeUnit = this._settings.get_string("vertical-size-unit");
+    const horizontalSizeUnit = this._settings.get_string("horizontal-size-unit");
+    const alignmentValue = this._settings.get_int("horizontal-alignment");
 
-    const horizontalAlignmentSettingsValue = this._settings.get_int(
-      "horizontal-alignment"
-    );
+    // Calculate window dimensions based on unit type
+    let windowHeight, windowWidth;
 
-    const terminalHeight = Math.round(
-      (verticalSettingsValue * area.height) / 100
-    );
-    const terminalWidth = Math.round(
-      (horizontalSettingsValue * area.width) / 100
-    );
+    if (verticalSizeUnit === "pixels") {
+      windowHeight = Math.min(verticalSettingsValue, area.height);
+    } else {
+      windowHeight = Math.round((verticalSettingsValue * area.height) / 100);
+    }
 
-    const terminalX =
-      area.x +
-      Math.round(
-        horizontalAlignmentSettingsValue &&
-          (area.width - terminalWidth) / horizontalAlignmentSettingsValue
-      );
+    if (horizontalSizeUnit === "pixels") {
+      windowWidth = Math.min(horizontalSettingsValue, area.width);
+    } else {
+      windowWidth = Math.round((horizontalSettingsValue * area.width) / 100);
+    }
 
-    this.terminalWindow.move_to_monitor(monitorDisplayScreenIndex);
+    // Calculate window position based on edge and alignment
+    let windowX, windowY;
 
-    this.terminalWindow.move_resize_frame(
+    if (screenEdge === "top" || screenEdge === "bottom") {
+      // Horizontal edges: use horizontal alignment
+      // 0 = left, 1 = right, 2 = center
+      if (alignmentValue === 0) {
+        windowX = area.x;
+      } else if (alignmentValue === 1) {
+        windowX = area.x + area.width - windowWidth;
+      } else {
+        windowX = area.x + Math.round((area.width - windowWidth) / 2);
+      }
+
+      if (screenEdge === "top") {
+        windowY = area.y;
+      } else {
+        windowY = area.y + area.height - windowHeight;
+      }
+    } else {
+      // Vertical edges: use vertical alignment (smart behavior)
+      // 0 = top, 1 = bottom, 2 = center
+      if (alignmentValue === 0) {
+        windowY = area.y;
+      } else if (alignmentValue === 1) {
+        windowY = area.y + area.height - windowHeight;
+      } else {
+        windowY = area.y + Math.round((area.height - windowHeight) / 2);
+      }
+
+      if (screenEdge === "left") {
+        windowX = area.x;
+      } else {
+        windowX = area.x + area.width - windowWidth;
+      }
+    }
+
+    this.appWindow.move_to_monitor(monitorDisplayScreenIndex);
+
+    this.appWindow.move_resize_frame(
       false,
-      terminalX,
-      area.y,
-      terminalWidth,
-      terminalHeight
+      windowX,
+      windowY,
+      windowWidth,
+      windowHeight
     );
   }
 
   _configureSkipTaskbarProperty() {
-    const terminalWindow = this.terminalWindow;
+    const appWindow = this.appWindow;
     const shouldSkipTaskbar = this._settings.get_boolean("skip-taskbar");
 
-    Object.defineProperty(terminalWindow, "skip_taskbar", {
+    Object.defineProperty(appWindow, "skip_taskbar", {
       get() {
-        if (terminalWindow && shouldSkipTaskbar) {
+        if (appWindow && shouldSkipTaskbar) {
           return true;
         }
 
@@ -624,21 +707,43 @@ export const QuakeMode = class {
       const originalActorAnimate = actor.ease;
 
       /**
-       * Intercept the next call to actor.animate() to perform a custom bottom-up close animation.
-       * Afterward, immediately restore the original behavior.
+       * Intercept the next call to actor.animate() to perform a custom close animation
+       * based on screen edge. Afterward, immediately restore the original behavior.
        */
       actor.ease = function () {
         actor.ease = originalActorAnimate;
 
-        originalActorAnimate.call(actor, {
+        const screenEdge = self._settings.get_string("screen-edge");
+        const easeParams = {
           mode: Clutter.AnimationMode.EASE_OUT_QUAD,
-          translation_y: actor.height * -1,
           duration: self._settings.get_int("animation-time"),
           onComplete: () => {
             // @ts-ignore
             Main.wm._destroyWindowDone(Main.wm._shellwm, actor);
           },
-        });
+        };
+
+        // Set animation direction based on screen edge
+        switch (screenEdge) {
+          case "top":
+            easeParams.translation_y = actor.height * -1;
+            easeParams.translation_x = 0;
+            break;
+          case "bottom":
+            easeParams.translation_y = actor.height;
+            easeParams.translation_x = 0;
+            break;
+          case "left":
+            easeParams.translation_x = actor.width * -1;
+            easeParams.translation_y = 0;
+            break;
+          case "right":
+            easeParams.translation_x = actor.width;
+            easeParams.translation_y = 0;
+            break;
+        }
+
+        originalActorAnimate.call(actor, easeParams);
       };
 
       return true;
@@ -661,26 +766,26 @@ export const QuakeMode = class {
       return;
     }
 
-    if (source.focus_window === this.terminalWindow) {
+    if (source.focus_window === this.appWindow) {
       return;
     }
 
-    this._hideTerminalWithAnimationBottomUp();
+    this._hideWindowWithAnimation();
   }
 
   _handleAlwaysOnTop() {
     const shouldAlwaysOnTop = this._settings.get_boolean("always-on-top");
 
-    if (!shouldAlwaysOnTop && !this.terminalWindow.is_above()) {
+    if (!shouldAlwaysOnTop && !this.appWindow.is_above()) {
       return;
     }
 
-    if (!shouldAlwaysOnTop && this.terminalWindow.is_above()) {
-      this.terminalWindow.unmake_above();
+    if (!shouldAlwaysOnTop && this.appWindow.is_above()) {
+      this.appWindow.unmake_above();
       return;
     }
 
-    this.terminalWindow.make_above();
+    this.appWindow.make_above();
   }
 
   /**

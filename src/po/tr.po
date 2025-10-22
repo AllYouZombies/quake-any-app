@@ -73,7 +73,7 @@ msgstr "Kısayol Ayarla"
 
 #: ../src/prefs.js:430
 #: ../src/schemas/org.gnome.shell.extensions.quake-terminal.gschema.xml:47
-msgid "Auto Hide Terminal"
+msgid "Auto Hide App"
 msgstr "Uçbirimi Otomatik Gizle"
 
 #: ../src/prefs.js:432
