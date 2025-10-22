@@ -40,7 +40,7 @@ The GNOME Shell Extension - Quake Any App enhances your desktop by providing a d
 1. Clone this repository to your system:
 
 ```bash
-git clone https://github.com/rustamqua/quake-any-app.git
+git clone https://github.com/AllYouZombies/quake-any-app.git
 ```
 
 2. Run the provided installation script:
@@ -56,7 +56,7 @@ make install
 4. Enable the extension using GNOME Extensions app or:
 
 ```bash
-gnome-extensions enable quake-any-app@rustamqua.github.io
+gnome-extensions enable quake-any-app@AllYouZombies.github.io
 ```
 
 ## Contributing
@@ -152,4 +152,4 @@ GPL-3.0-or-later
 
 ---
 
-Made with ❤️ by [Rustam Qua](https://github.com/rustamqua) (forked from [Diego Dario](https://github.com/diegodario88))
+Made with ❤️ by [Rustam Qua](https://github.com/AllYouZombies) (forked from [Diego Dario](https://github.com/diegodario88))

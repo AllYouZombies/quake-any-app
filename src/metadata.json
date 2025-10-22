@@ -1,5 +1,5 @@
 {
-  "uuid": "quake-any-app@rustamqua.github.io",
+  "uuid": "quake-any-app@AllYouZombies.github.io",
   "version": 1,
   "name": "Quake Any App",
   "description": "Quickly launch any application in Quake mode from any screen edge using a keyboard shortcut",
@@ -11,6 +11,6 @@
     "49"
   ],
   "settings-schema": "org.gnome.shell.extensions.quake-any-app",
-  "url": "https://github.com/rustamqua/quake-any-app",
+  "url": "https://github.com/AllYouZombies/quake-any-app",
   "version-name": "0.1.0"
 }

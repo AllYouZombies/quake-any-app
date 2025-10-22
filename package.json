@@ -5,18 +5,18 @@
   "private": true,
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/rustamqua/quake-any-app"
+    "url": "git+https://github.com/AllYouZombies/quake-any-app"
   },
   "author": "Rustam Qua (forked from Diego Dario)",
   "license": "GPL-3.0-or-later",
   "type": "module",
   "bugs": {
-    "url": "https://github.com/rustamqua/quake-any-app/issues"
+    "url": "https://github.com/AllYouZombies/quake-any-app/issues"
   },
   "engines": {
     "node": ">=22"
   },
-  "homepage": "https://github.com/rustamqua/quake-any-app#readme",
+  "homepage": "https://github.com/AllYouZombies/quake-any-app#readme",
   "sideEffects": false,
   "devDependencies": {
     "@girs/gnome-shell": "^48.0.2",

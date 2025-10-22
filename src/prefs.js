@@ -21,7 +21,7 @@ const ABOUT_APPLICATION_HELP_DIALOG = `
   <span font_desc='10'> - A valid <a href="https://developer.gnome.org/documentation/tutorials/application-id.html">Application ID</a>.</span>
   <span font_desc='10'> - Should not be hidden.</span>
 
-  <small>This allows you to select any application to display in Quake mode. For help and more information, refer to <a href="https://github.com/rustamqua/quake-any-app">Quake Any App</a>.</small>
+  <small>This allows you to select any application to display in Quake mode. For help and more information, refer to <a href="https://github.com/AllYouZombies/quake-any-app">Quake Any App</a>.</small>
 </markup>
 `;
 

@@ -224,7 +224,7 @@ if (unit === "pixels") {
 
 - TypeScript definitions in `@types/` provide GJS ambient types
 - `po/` directory (referenced in Makefile) contains translations
-- Extension UUID: `quake-any-app@rustamqua.github.io`
+- Extension UUID: `quake-any-app@AllYouZombies.github.io`
 - Settings schema ID: `org.gnome.shell.extensions.quake-any-app`
 
 ## Credits
