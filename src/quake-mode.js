@@ -20,7 +20,6 @@ import Clutter from "gi://Clutter";
 import GLib from "gi://GLib";
 import Gio from "gi://Gio";
 import Shell from "gi://Shell";
-import Meta from "gi://Meta";
 import * as Main from "resource:///org/gnome/shell/ui/main.js";
 
 const STARTUP_TIMER_IN_SECONDS = 5;
