@@ -11,5 +11,6 @@
   ],
   "settings-schema": "org.gnome.shell.extensions.quake-any-app",
   "url": "https://github.com/AllYouZombies/quake-any-app",
-  "version-name": "0.1.0"
+  "version-name": "1.1.0",
+  "version": null
 }

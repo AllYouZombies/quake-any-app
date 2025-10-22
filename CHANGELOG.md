@@ -1,3 +1,11 @@
+# [1.1.0](https://github.com/AllYouZombies/quake-any-app/compare/v1.0.0...v1.1.0) (2025-10-22)
+
+
+### Features
+
+* Remove unused Meta import from quake-mode.js ([ca38cc2](https://github.com/AllYouZombies/quake-any-app/commit/ca38cc22a7fd0d7636a17dcfa6324c45f23f8f47))
+* Update author name in metadata and source files ([cf63fac](https://github.com/AllYouZombies/quake-any-app/commit/cf63facb59170bbf11fe23d760fd6aee24c44176))
+
 # 1.0.0 (2025-10-22)
 
 
