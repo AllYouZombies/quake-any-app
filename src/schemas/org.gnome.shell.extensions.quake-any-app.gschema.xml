@@ -1,86 +1,205 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <schemalist>
   <schema id="org.gnome.shell.extensions.quake-any-app" path="/org/gnome/shell/extensions/quake-any-app/">
-    <key name="app-id" type="s">
-			<default>"org.gnome.Terminal.desktop"</default>
-			<summary>Application</summary>
-      <description>The application ID used as a reference when launching in Quake mode</description>
+    <!-- Slot 1 Settings -->
+    <key name="app-id-1" type="s">
+      <default>"org.gnome.Terminal.desktop"</default>
+      <summary>Application 1</summary>
+      <description>The application ID for slot 1</description>
     </key>
-		<key name="app-shortcut" type="as">
-			<default><![CDATA[['<Super>Return']]]></default>
-			<summary>Toggle Application</summary>
-			<description>Shortcut to activate the application in Quake mode</description>
-		</key>
-		<key name="screen-edge" type="s">
-			<default>"top"</default>
-			<summary>Screen Edge</summary>
-			<description>Which edge of the screen the window should appear from (top, bottom, left, right)</description>
-		</key>
-		<key name="vertical-size" type="i">
-  		<default>50</default>
-  		<summary>Vertical Size</summary>
-  		<description>Specify the vertical size of the window</description>
-		</key>
-		<key name="vertical-size-unit" type="s">
-			<default>"percent"</default>
-			<summary>Vertical Size Unit</summary>
-			<description>Unit for vertical size: percent or pixels</description>
-		</key>
-		<key name="horizontal-size" type="i">
-  		<default>100</default>
-  		<summary>Horizontal Size</summary>
-  		<description>Specify the horizontal size of the window</description>
-		</key>
-		<key name="horizontal-size-unit" type="s">
-			<default>"percent"</default>
-			<summary>Horizontal Size Unit</summary>
-			<description>Unit for horizontal size: percent or pixels</description>
-		</key>
-		<key name="horizontal-alignment" type="i">
-			<range min="0" max="2" />
-			<default>2</default>
-			<summary>Alignment</summary>
-			<description>Window alignment (0=left/top, 1=right/bottom, 2=center)</description>
-		</key>
-		<key name="render-on-current-monitor" type="b">
-			<default>false</default>
-			<summary>Show on the current Display</summary>
-  		<description>When enabled, the window will be shown on the Display that currently has the mouse pointer</description>
-		</key>
-		<key name="render-on-primary-monitor" type="b">
-			<default>false</default>
-			<summary>Show on the primary Display</summary>
-  		<description>When enabled, the window will be shown on the Display set as Primary in Gnome Display settings</description>
-		</key>
-		<key name="monitor-screen" type="i">
-			<default>0</default>
-			<summary>Display</summary>
-  		<description>Specify the display where the window should be rendered</description>
-		</key>
-		<key name="auto-hide-window" type="b">
-			<default>true</default>
-			<summary>Auto Hide Window</summary>
-  		<description>When enabled, this hides the window when it loses focus</description>
-		</key>
-		<key name="always-on-top" type="b">
-			<default>false</default>
-			<summary>Always On Top</summary>
-  		<description>When enabled, window will appear on top of all other non-topmost windows</description>
-		</key>
-		<key name="animation-time" type="i">
+    <key name="app-shortcut-1" type="as">
+      <default><![CDATA[['<Super>Return']]]></default>
+      <summary>Toggle Application 1</summary>
+      <description>Shortcut to activate application 1</description>
+    </key>
+    <key name="screen-edge-1" type="s">
+      <default>"top"</default>
+      <summary>Screen Edge 1</summary>
+      <description>Which edge for slot 1 (top, bottom, left, right)</description>
+    </key>
+    <key name="vertical-size-1" type="i">
+      <default>50</default>
+      <summary>Vertical Size 1</summary>
+      <description>Vertical size for slot 1</description>
+    </key>
+    <key name="vertical-size-unit-1" type="s">
+      <default>"percent"</default>
+      <summary>Vertical Size Unit 1</summary>
+      <description>Unit for vertical size slot 1: percent or pixels</description>
+    </key>
+    <key name="horizontal-size-1" type="i">
+      <default>100</default>
+      <summary>Horizontal Size 1</summary>
+      <description>Horizontal size for slot 1</description>
+    </key>
+    <key name="horizontal-size-unit-1" type="s">
+      <default>"percent"</default>
+      <summary>Horizontal Size Unit 1</summary>
+      <description>Unit for horizontal size slot 1: percent or pixels</description>
+    </key>
+    <key name="horizontal-alignment-1" type="i">
+      <range min="0" max="2" />
+      <default>2</default>
+      <summary>Alignment 1</summary>
+      <description>Window alignment for slot 1 (0=left/top, 1=right/bottom, 2=center)</description>
+    </key>
+    <key name="always-on-top-1" type="b">
+      <default>false</default>
+      <summary>Always On Top 1</summary>
+      <description>Window always on top for slot 1</description>
+    </key>
+    <key name="skip-taskbar-1" type="b">
+      <default>true</default>
+      <summary>Hide window 1 in certain modes</summary>
+      <description>Hide slot 1 window in overview/Alt+Tab</description>
+    </key>
+    <key name="auto-hide-window-1" type="b">
+      <default>true</default>
+      <summary>Auto Hide Window 1</summary>
+      <description>Auto hide slot 1 window on focus loss</description>
+    </key>
+
+    <!-- Slot 2 Settings -->
+    <key name="app-id-2" type="s">
+      <default>""</default>
+      <summary>Application 2</summary>
+      <description>The application ID for slot 2</description>
+    </key>
+    <key name="app-shortcut-2" type="as">
+      <default><![CDATA[['<Super>b']]]></default>
+      <summary>Toggle Application 2</summary>
+      <description>Shortcut to activate application 2</description>
+    </key>
+    <key name="screen-edge-2" type="s">
+      <default>"bottom"</default>
+      <summary>Screen Edge 2</summary>
+      <description>Which edge for slot 2 (top, bottom, left, right)</description>
+    </key>
+    <key name="vertical-size-2" type="i">
+      <default>50</default>
+      <summary>Vertical Size 2</summary>
+      <description>Vertical size for slot 2</description>
+    </key>
+    <key name="vertical-size-unit-2" type="s">
+      <default>"percent"</default>
+      <summary>Vertical Size Unit 2</summary>
+      <description>Unit for vertical size slot 2: percent or pixels</description>
+    </key>
+    <key name="horizontal-size-2" type="i">
+      <default>100</default>
+      <summary>Horizontal Size 2</summary>
+      <description>Horizontal size for slot 2</description>
+    </key>
+    <key name="horizontal-size-unit-2" type="s">
+      <default>"percent"</default>
+      <summary>Horizontal Size Unit 2</summary>
+      <description>Unit for horizontal size slot 2: percent or pixels</description>
+    </key>
+    <key name="horizontal-alignment-2" type="i">
+      <range min="0" max="2" />
+      <default>2</default>
+      <summary>Alignment 2</summary>
+      <description>Window alignment for slot 2 (0=left/top, 1=right/bottom, 2=center)</description>
+    </key>
+    <key name="always-on-top-2" type="b">
+      <default>false</default>
+      <summary>Always On Top 2</summary>
+      <description>Window always on top for slot 2</description>
+    </key>
+    <key name="skip-taskbar-2" type="b">
+      <default>true</default>
+      <summary>Hide window 2 in certain modes</summary>
+      <description>Hide slot 2 window in overview/Alt+Tab</description>
+    </key>
+    <key name="auto-hide-window-2" type="b">
+      <default>true</default>
+      <summary>Auto Hide Window 2</summary>
+      <description>Auto hide slot 2 window on focus loss</description>
+    </key>
+
+    <!-- Slot 3 Settings -->
+    <key name="app-id-3" type="s">
+      <default>""</default>
+      <summary>Application 3</summary>
+      <description>The application ID for slot 3</description>
+    </key>
+    <key name="app-shortcut-3" type="as">
+      <default><![CDATA[['<Super>n']]]></default>
+      <summary>Toggle Application 3</summary>
+      <description>Shortcut to activate application 3</description>
+    </key>
+    <key name="screen-edge-3" type="s">
+      <default>"left"</default>
+      <summary>Screen Edge 3</summary>
+      <description>Which edge for slot 3 (top, bottom, left, right)</description>
+    </key>
+    <key name="vertical-size-3" type="i">
+      <default>100</default>
+      <summary>Vertical Size 3</summary>
+      <description>Vertical size for slot 3</description>
+    </key>
+    <key name="vertical-size-unit-3" type="s">
+      <default>"percent"</default>
+      <summary>Vertical Size Unit 3</summary>
+      <description>Unit for vertical size slot 3: percent or pixels</description>
+    </key>
+    <key name="horizontal-size-3" type="i">
+      <default>30</default>
+      <summary>Horizontal Size 3</summary>
+      <description>Horizontal size for slot 3</description>
+    </key>
+    <key name="horizontal-size-unit-3" type="s">
+      <default>"percent"</default>
+      <summary>Horizontal Size Unit 3</summary>
+      <description>Unit for horizontal size slot 3: percent or pixels</description>
+    </key>
+    <key name="horizontal-alignment-3" type="i">
+      <range min="0" max="2" />
+      <default>2</default>
+      <summary>Alignment 3</summary>
+      <description>Window alignment for slot 3 (0=left/top, 1=right/bottom, 2=center)</description>
+    </key>
+    <key name="always-on-top-3" type="b">
+      <default>false</default>
+      <summary>Always On Top 3</summary>
+      <description>Window always on top for slot 3</description>
+    </key>
+    <key name="skip-taskbar-3" type="b">
+      <default>true</default>
+      <summary>Hide window 3 in certain modes</summary>
+      <description>Hide slot 3 window in overview/Alt+Tab</description>
+    </key>
+    <key name="auto-hide-window-3" type="b">
+      <default>true</default>
+      <summary>Auto Hide Window 3</summary>
+      <description>Auto hide slot 3 window on focus loss</description>
+    </key>
+
+    <!-- Global Settings -->
+    <key name="render-on-current-monitor" type="b">
+      <default>false</default>
+      <summary>Show on the current Display</summary>
+      <description>When enabled, the window will be shown on the Display that currently has the mouse pointer</description>
+    </key>
+    <key name="render-on-primary-monitor" type="b">
+      <default>false</default>
+      <summary>Show on the primary Display</summary>
+      <description>When enabled, the window will be shown on the Display set as Primary in Gnome Display settings</description>
+    </key>
+    <key name="monitor-screen" type="i">
+      <default>0</default>
+      <summary>Display</summary>
+      <description>Specify the display where the window should be rendered</description>
+    </key>
+    <key name="animation-time" type="i">
       <default>250</default>
       <summary>Animation time</summary>
       <description>Duration of the slide animation in milliseconds</description>
-		</key>
-		<key name="skip-taskbar" type="b">
-			<default>true</default>
-			<summary>Hide window in certain modes</summary>
-  		<description>When enabled, the window will not appear in overview mode or when using Alt+Tab.</description>
-		</key>
+    </key>
     <key name="launch-args-map" type="a{ss}">
       <default>{}</default>
       <summary>Launch arguments per application</summary>
       <description>Dictionary mapping application IDs to their launch arguments</description>
     </key>
-	</schema>
+  </schema>
 </schemalist>

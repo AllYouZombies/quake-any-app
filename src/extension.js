@@ -31,50 +31,62 @@ export default class QuakeAnyAppExtension extends Extension {
   enable() {
     this._settings = this.getSettings();
     this._appSystem = Shell.AppSystem.get_default();
-    this._quakeMode = null;
+    this._quakeModes = [null, null, null]; // 3 slots
 
-    Main.wm.addKeybinding(
-      "app-shortcut",
-      this._settings,
-      Meta.KeyBindingFlags.IGNORE_AUTOREPEAT,
-      Shell.ActionMode.NORMAL |
-        Shell.ActionMode.OVERVIEW |
-        Shell.ActionMode.POPUP,
-      () =>
-        this._handleQuakeModeApp().catch((reason) => console.log(reason))
-    );
+    // Register keybindings for all 3 slots
+    for (let slotId = 1; slotId <= 3; slotId++) {
+      Main.wm.addKeybinding(
+        `app-shortcut-${slotId}`,
+        this._settings,
+        Meta.KeyBindingFlags.IGNORE_AUTOREPEAT,
+        Shell.ActionMode.NORMAL |
+          Shell.ActionMode.OVERVIEW |
+          Shell.ActionMode.POPUP,
+        () =>
+          this._handleQuakeModeApp(slotId).catch((reason) => console.log(reason))
+      );
+    }
   }
 
   disable() {
-    Main.wm.removeKeybinding("app-shortcut");
+    // Remove all keybindings
+    for (let slotId = 1; slotId <= 3; slotId++) {
+      Main.wm.removeKeybinding(`app-shortcut-${slotId}`);
+    }
 
-    if (this._quakeMode) {
-      this._quakeMode.destroy();
+    // Destroy all QuakeMode instances
+    for (let i = 0; i < 3; i++) {
+      if (this._quakeModes[i]) {
+        this._quakeModes[i].destroy();
+      }
     }
 
     this._settings = null;
     this._appSystem = null;
-    this._quakeMode = null;
+    this._quakeModes = null;
   }
 
-  _handleQuakeModeApp() {
-    if (this._quakeMode) {
+  _handleQuakeModeApp(slotId) {
+    const slotIndex = slotId - 1; // Convert to 0-based index
+    const quakeMode = this._quakeModes[slotIndex];
+
+    if (quakeMode) {
       if (
-        this._quakeMode._internalState === QuakeMode.LIFECYCLE.STARTING ||
-        this._quakeMode._internalState === QuakeMode.LIFECYCLE.CREATED_ACTOR
+        quakeMode._internalState === QuakeMode.LIFECYCLE.STARTING ||
+        quakeMode._internalState === QuakeMode.LIFECYCLE.CREATED_ACTOR
       ) {
         return;
       }
     }
 
     if (
-      !this._quakeMode ||
-      this._quakeMode._internalState === QuakeMode.LIFECYCLE.DEAD
+      !quakeMode ||
+      quakeMode._internalState === QuakeMode.LIFECYCLE.DEAD
     ) {
-      const appId = this._settings.get_string("app-id");
+      const appId = this._settings.get_string(`app-id-${slotId}`);
 
       if (!appId) {
-        Main.notify(_(`Select an application in Quake Any App preferences.`));
+        Main.notify(_(`Select an application for slot ${slotId} in Quake Any App preferences.`));
         return;
       }
 
@@ -85,10 +97,10 @@ export default class QuakeAnyAppExtension extends Extension {
         return;
       }
 
-      this._quakeMode = new QuakeMode(app, this._settings);
-      return this._quakeMode.toggle();
+      this._quakeModes[slotIndex] = new QuakeMode(app, this._settings, slotId);
+      return this._quakeModes[slotIndex].toggle();
     }
 
-    return this._quakeMode.toggle();
+    return quakeMode.toggle();
   }
 }

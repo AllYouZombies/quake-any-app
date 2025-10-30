@@ -46,13 +46,15 @@ export const QuakeMode = class {
    *
    * @param {Shell.App} app - The application instance.
    * @param {Gio.Settings} settings - The Gio.Settings object for configuration.
+   * @param {number} slotId - The slot identifier (1, 2, or 3).
    */
-  constructor(app, settings) {
+  constructor(app, settings, slotId) {
     /**
      *@type {Shell.App}
      */
     this._app = app;
     this._settings = settings;
+    this._slotId = slotId;
     this._internalState = QuakeMode.LIFECYCLE.READY;
 
     this._sourceTimeoutLoopId = null;
@@ -85,7 +87,7 @@ export const QuakeMode = class {
     ["vertical-size", "horizontal-size", "horizontal-alignment", "vertical-size-unit", "horizontal-size-unit", "screen-edge"].forEach(
       (prefAdjustment) => {
         const settingsId = settings.connect(
-          `changed::${prefAdjustment}`,
+          `changed::${prefAdjustment}-${slotId}`,
           () => {
             this._fitWindowToMonitor();
           }
@@ -96,7 +98,7 @@ export const QuakeMode = class {
     );
 
     const alwaysOnTopSettingsId = settings.connect(
-      "changed::always-on-top",
+      `changed::always-on-top-${slotId}`,
       () => {
         this._handleAlwaysOnTop();
       }
@@ -105,7 +107,7 @@ export const QuakeMode = class {
     this._settingsWatchingListIds.push(alwaysOnTopSettingsId);
 
     const skipTaskbarSettingsId = settings.connect(
-      "changed::skip-taskbar",
+      `changed::skip-taskbar-${slotId}`,
       () => {
         this._configureSkipTaskbarProperty();
       }
@@ -127,7 +129,7 @@ export const QuakeMode = class {
          * @type {Meta.WindowActor & { ease: Function }}
          */
         const actor = w.get_compositor_private();
-        return actor.get_name() === "quake-any-app" && w.is_alive;
+        return actor.get_name() === `quake-any-app-${this._slotId}` && w.is_alive;
       });
 
       if (!ourWindow) {
@@ -336,7 +338,7 @@ export const QuakeMode = class {
            * @type {Meta.WindowActor & { ease: Function }}
            */
           const actor = ourWindow.get_compositor_private();
-          actor.set_name("quake-any-app");
+          actor.set_name(`quake-any-app-${this._slotId}`);
           this._appWindow = ourWindow;
           this._internalState = QuakeMode.LIFECYCLE.CREATED_ACTOR;
 
@@ -480,7 +482,7 @@ export const QuakeMode = class {
 
     parent.set_child_above_sibling(this.actor, null);
 
-    const screenEdge = this._settings.get_string("screen-edge");
+    const screenEdge = this._settings.get_string(`screen-edge-${this._slotId}`);
 
     // Set initial position based on screen edge
     switch (screenEdge) {
@@ -522,7 +524,7 @@ export const QuakeMode = class {
       return;
     }
 
-    const screenEdge = this._settings.get_string("screen-edge");
+    const screenEdge = this._settings.get_string(`screen-edge-${this._slotId}`);
     const easeParams = {
       mode: Clutter.AnimationMode.EASE_OUT_QUAD,
       duration: this._settings.get_int("animation-time"),
@@ -566,12 +568,12 @@ export const QuakeMode = class {
       monitorDisplayScreenIndex
     );
 
-    const screenEdge = this._settings.get_string("screen-edge");
-    const verticalSettingsValue = this._settings.get_int("vertical-size");
-    const horizontalSettingsValue = this._settings.get_int("horizontal-size");
-    const verticalSizeUnit = this._settings.get_string("vertical-size-unit");
-    const horizontalSizeUnit = this._settings.get_string("horizontal-size-unit");
-    const alignmentValue = this._settings.get_int("horizontal-alignment");
+    const screenEdge = this._settings.get_string(`screen-edge-${this._slotId}`);
+    const verticalSettingsValue = this._settings.get_int(`vertical-size-${this._slotId}`);
+    const horizontalSettingsValue = this._settings.get_int(`horizontal-size-${this._slotId}`);
+    const verticalSizeUnit = this._settings.get_string(`vertical-size-unit-${this._slotId}`);
+    const horizontalSizeUnit = this._settings.get_string(`horizontal-size-unit-${this._slotId}`);
+    const alignmentValue = this._settings.get_int(`horizontal-alignment-${this._slotId}`);
 
     // Calculate window dimensions based on unit type
     let windowHeight, windowWidth;
@@ -638,7 +640,7 @@ export const QuakeMode = class {
 
   _configureSkipTaskbarProperty() {
     const appWindow = this.appWindow;
-    const shouldSkipTaskbar = this._settings.get_boolean("skip-taskbar");
+    const shouldSkipTaskbar = this._settings.get_boolean(`skip-taskbar-${this._slotId}`);
 
     Object.defineProperty(appWindow, "skip_taskbar", {
       get() {
@@ -687,7 +689,7 @@ export const QuakeMode = class {
       actor.ease = function () {
         actor.ease = originalActorAnimate;
 
-        const screenEdge = self._settings.get_string("screen-edge");
+        const screenEdge = self._settings.get_string(`screen-edge-${self._slotId}`);
         const easeParams = {
           mode: Clutter.AnimationMode.EASE_OUT_QUAD,
           duration: self._settings.get_int("animation-time"),
@@ -730,7 +732,7 @@ export const QuakeMode = class {
    * @param {Meta.Display} source - The display object.
    */
   _handleHideOnFocusLoss(source) {
-    const shouldAutoHide = this._settings.get_boolean("auto-hide-window");
+    const shouldAutoHide = this._settings.get_boolean(`auto-hide-window-${this._slotId}`);
 
     if (!shouldAutoHide) {
       return;
@@ -748,7 +750,7 @@ export const QuakeMode = class {
   }
 
   _handleAlwaysOnTop() {
-    const shouldAlwaysOnTop = this._settings.get_boolean("always-on-top");
+    const shouldAlwaysOnTop = this._settings.get_boolean(`always-on-top-${this._slotId}`);
 
     if (!shouldAlwaysOnTop && !this.appWindow.is_above()) {
       return;
