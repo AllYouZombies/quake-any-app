@@ -1,16 +1,15 @@
-# SOME DESCRIPTIVE TITLE.
-# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
-# This file is distributed under the same license as the PACKAGE package.
-# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
-# Fraxinus Acer <>, 2025.
+# Russian translation for Quake Any App
+# Copyright (C) 2025 Rustam Astafeev
+# This file is distributed under the same license as the Quake Any App package.
+# Rustam Astafeev <>, 2025.
 #
 msgid ""
 msgstr ""
-"Project-Id-Version: unnamed project\n"
-"Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-08-01 19:16+0300\n"
-"PO-Revision-Date: 2025-08-01 19:18+0300\n"
-"Last-Translator: Fraxinus Acer\n"
+"Project-Id-Version: Quake Any App 1.1.0\n"
+"Report-Msgid-Bugs-To: https://github.com/AllYouZombies/quake-any-app/issues\n"
+"POT-Creation-Date: 2026-03-24 17:57+0500\n"
+"PO-Revision-Date: 2026-03-24 17:57+0500\n"
+"Last-Translator: Rustam Astafeev\n"
 "Language-Team: Russian\n"
 "Language: ru\n"
 "MIME-Version: 1.0\n"
@@ -18,238 +17,203 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && "
 "n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2);\n"
-"X-Generator: Poedit 3.6\n"
 
-#: ../src/extension.js:68
-msgid "Select an application in Quake Terminal preferences."
-msgstr "Выбрать приложение для настроек Quake Terminal."
-
-#: ../src/prefs.js:164
-msgid "Quake Terminal Settings"
-msgstr "Настройки Quake Terminal"
-
-#: ../src/prefs.js:168
+#: src/prefs.js:213 src/prefs.js:224
 msgid "Application"
 msgstr "Приложение"
 
-#: ../src/prefs.js:181
-msgid "Terminal Application"
-msgstr "Приложение терминала"
-
-#: ../src/prefs.js:267
+#: src/prefs.js:305
 msgid "Launch Options"
-msgstr "Параметры запуска"
+msgstr "Аргументы запуска"
 
-#: ../src/prefs.js:269
-msgid ""
-"Optional command-line arguments to customize how the terminal starts for "
-"this application. For example: -o font_size=18"
-msgstr ""
-"Необязательные аргументы командной строки, позволяющие настроить запуск "
-"терминала для данного приложения. Например: -o font_size=18"
+#: src/prefs.js:307
+msgid "Optional command-line arguments. For example: -o font_size=18"
+msgstr "Необязательные аргументы командной строки. Например: -o font_size=18"
 
-#: ../src/prefs.js:341
+#: src/prefs.js:367
 msgid "General"
-msgstr "Общие"
+msgstr "Основные"
 
-#: ../src/prefs.js:349
+#: src/prefs.js:374
 msgid "Toggle Shortcut"
-msgstr "Вызов комбинацией клавиш"
+msgstr "Сочетание клавиш"
 
-#: ../src/prefs.js:350
-#: ../src/schemas/org.gnome.shell.extensions.quake-terminal.gschema.xml:12
-msgid "Shortcut to activate the terminal application"
-msgstr "Комбинация клавиш для вызова приложения терминала"
+#: src/prefs.js:375
+msgid "Shortcut to activate this application"
+msgstr "Сочетание клавиш для вызова приложения"
 
-#: ../src/prefs.js:354
+#: src/prefs.js:379
 msgid "Select a shortcut"
-msgstr "Выберете комбинацию клавиш"
+msgstr "Выберите сочетание клавиш"
 
-#: ../src/prefs.js:368
-msgid "Enter new shortcut to toggle Quake Terminal"
-msgstr "Введите новую комбинацию клавиш для вызова Quake Terminal"
-
-#: ../src/prefs.js:378
+#: src/prefs.js:403
 msgid "Set Shortcut"
-msgstr "Установить комбинацию клавш"
+msgstr "Задать сочетание клавиш"
 
-#: ../src/prefs.js:430
-#: ../src/schemas/org.gnome.shell.extensions.quake-terminal.gschema.xml:47
+#: src/prefs.js:455
 msgid "Auto Hide App"
-msgstr "Авто скрытие терминала"
+msgstr "Автоскрытие"
 
-#: ../src/prefs.js:432
-#: ../src/schemas/org.gnome.shell.extensions.quake-terminal.gschema.xml:48
-msgid "When enabled, this hides the Terminal window when it loses focus"
-msgstr "Когда включено окно терминала скрывается, когда теряется фокус"
+#: src/prefs.js:456
+msgid "Hide window when it loses focus"
+msgstr "Скрывать окно при потере фокуса"
 
-#: ../src/prefs.js:446
-#: ../src/schemas/org.gnome.shell.extensions.quake-terminal.gschema.xml:32
-msgid "Show on the current Display"
-msgstr "Отобразить на текущем мониторе"
-
-#: ../src/prefs.js:448
-#: ../src/schemas/org.gnome.shell.extensions.quake-terminal.gschema.xml:33
-msgid ""
-"When enabled, the Terminal will be shown on the Display that currently has "
-"the mouse pointer"
-msgstr ""
-"Когда эта функция включена, терминал будет появляться на дисплее, на который "
-"в данный момент наведен указатель мыши"
-
-#: ../src/prefs.js:462
-#: ../src/schemas/org.gnome.shell.extensions.quake-terminal.gschema.xml:37
-msgid "Show on the primary Display"
-msgstr "Отобразить на основном мониторе"
-
-#: ../src/prefs.js:464
-#: ../src/schemas/org.gnome.shell.extensions.quake-terminal.gschema.xml:38
-msgid ""
-"When enabled, the Terminal will be shown on the Display set as Primary in "
-"Gnome Display settings"
-msgstr ""
-"Если эта включено, терминал будет отображаться на дисплее, установленном в "
-"качестве основного в настройках дисплея Gnome"
-
-#: ../src/prefs.js:493
-#: ../src/schemas/org.gnome.shell.extensions.quake-terminal.gschema.xml:42
-msgid "Display"
-msgstr "Монитор"
-
-#: ../src/prefs.js:494
-msgid "Which display should the terminal be rendered on"
-msgstr "На каком дисплее должен отображаться терминал"
-
-#: ../src/prefs.js:545
-msgid "Animation Time"
-msgstr "Время анимации"
-
-#: ../src/prefs.js:546
-#: ../src/schemas/org.gnome.shell.extensions.quake-terminal.gschema.xml:58
-msgid "Duration of the dropdown animation in milliseconds"
-msgstr "Продолжительность анимации выпадания, в миллисекундах"
-
-#: ../src/prefs.js:564
+#: src/prefs.js:469
 msgid "Position"
 msgstr "Расположение"
 
-#: ../src/prefs.js:571
-msgid "Vertical Size"
-msgstr "Размер по вертикали"
+#: src/prefs.js:478
+msgid "Top"
+msgstr "Сверху"
 
-#: ../src/prefs.js:572
-msgid "Terminal vertical distance as a percentage"
-msgstr "Вертикальный размер терминала в процентах"
+#: src/prefs.js:478
+msgid "Bottom"
+msgstr "Снизу"
 
-#: ../src/prefs.js:591
-msgid "Horizontal Size"
-msgstr "Горизонтальный размер"
-
-#: ../src/prefs.js:592
-msgid "Terminal horizontal distance as a percentage"
-msgstr "Горизонтальный размер терминала в процентах"
-
-#: ../src/prefs.js:614
+#: src/prefs.js:478
 msgid "Left"
 msgstr "Слева"
 
-#: ../src/prefs.js:614
+#: src/prefs.js:478
 msgid "Right"
 msgstr "Справа"
 
-#: ../src/prefs.js:614
+#: src/prefs.js:488
+msgid "Screen Edge"
+msgstr "Сторона экрана"
+
+#: src/prefs.js:489
+msgid "Which edge the window should appear from"
+msgstr "С какой стороны экрана появляется окно"
+
+#: src/prefs.js:508
+msgid "Vertical Size"
+msgstr "Высота"
+
+#: src/prefs.js:509
+msgid "Application vertical size"
+msgstr "Высота окна приложения"
+
+#: src/prefs.js:524 src/prefs.js:592
+msgid "Percent"
+msgstr "Процент"
+
+#: src/prefs.js:524 src/prefs.js:592
+msgid "Pixels"
+msgstr "Пиксели"
+
+#: src/prefs.js:534
+msgid "Vertical Size Unit"
+msgstr "Единица высоты"
+
+#: src/prefs.js:535
+msgid "Unit for vertical size measurement"
+msgstr "Единица измерения высоты"
+
+#: src/prefs.js:552
+msgid "Application vertical size in pixels"
+msgstr "Высота окна в пикселях"
+
+#: src/prefs.js:555
+msgid "Application vertical size in percent"
+msgstr "Высота окна в процентах"
+
+#: src/prefs.js:576
+msgid "Horizontal Size"
+msgstr "Ширина"
+
+#: src/prefs.js:577
+msgid "Application horizontal size"
+msgstr "Ширина окна приложения"
+
+#: src/prefs.js:602
+msgid "Horizontal Size Unit"
+msgstr "Единица ширины"
+
+#: src/prefs.js:603
+msgid "Unit for horizontal size measurement"
+msgstr "Единица измерения ширины"
+
+#: src/prefs.js:620
+msgid "Application horizontal size in pixels"
+msgstr "Ширина окна в пикселях"
+
+#: src/prefs.js:623
+msgid "Application horizontal size in percent"
+msgstr "Ширина окна в процентах"
+
+#: src/prefs.js:647
+msgid "Left/Top"
+msgstr "Слева/Сверху"
+
+#: src/prefs.js:647
+msgid "Right/Bottom"
+msgstr "Справа/Снизу"
+
+#: src/prefs.js:647
 msgid "Center"
 msgstr "По центру"
 
-#: ../src/prefs.js:621
-msgid "Horizontal Alignment"
-msgstr "Горизонтальное выравнивание"
+#: src/prefs.js:654
+msgid "Alignment"
+msgstr "Выравнивание"
 
-#: ../src/prefs.js:622
-#: ../src/schemas/org.gnome.shell.extensions.quake-terminal.gschema.xml:28
-msgid "Control the value for horizontal alignment"
-msgstr "Задайте значение для выравнивания по горизонтали"
+#: src/prefs.js:655
+msgid "Window alignment (horizontal for top/bottom, vertical for left/right)"
+msgstr "Выравнивание окна (горизонтальное для верхнего/нижнего края, вертикальное для левого/правого)"
 
-#: ../src/prefs.js:640
-#: ../src/schemas/org.gnome.shell.extensions.quake-terminal.gschema.xml:52
+#: src/prefs.js:673
 msgid "Always On Top"
-msgstr "Всегда вверху"
+msgstr "Поверх всех окон"
 
-#: ../src/prefs.js:642
-#: ../src/schemas/org.gnome.shell.extensions.quake-terminal.gschema.xml:53
-msgid ""
-"When enabled, terminal window will appear on top of all other non-topmost "
-"windows"
-msgstr ""
-"Если включено, окно терминала появится поверх всех остальных окон, не "
-"закреплённых всегда сверху"
+#: src/prefs.js:674
+msgid "Window appears on top of all other non-topmost windows"
+msgstr "Окно отображается поверх всех других обычных окон"
 
-#: ../src/prefs.js:656
+#: src/prefs.js:687
 msgid "Hide In Certain Modes"
-msgstr "Скрывать в режиме обзора"
+msgstr "Скрывать в особых режимах"
 
-#: ../src/prefs.js:658
-#: ../src/schemas/org.gnome.shell.extensions.quake-terminal.gschema.xml:63
-msgid ""
-"When enabled, the terminal window will not appear in overview mode or when "
-"using Alt+Tab."
-msgstr ""
-"Если включено, окно терминала не будет отображаться в режиме обзора или при "
-"использовании комбинации клавиш Alt+Tab."
+#: src/prefs.js:688
+msgid "Window won't appear in overview mode or Alt+Tab"
+msgstr "Окно не отображается в режиме обзора и при переключении Alt+Tab"
 
-#: ../src/schemas/org.gnome.shell.extensions.quake-terminal.gschema.xml:6
-msgid "Terminal App"
-msgstr "Приложение терминала"
+#: src/prefs.js:710
+msgid "Global"
+msgstr "Глобальные"
 
-#: ../src/schemas/org.gnome.shell.extensions.quake-terminal.gschema.xml:7
-msgid ""
-"The application path used as a reference when initializing a new terminal"
-msgstr ""
-"Путь к приложению, используемый в качестве ссылки при инициализации нового "
-"терминала"
+#: src/prefs.js:715
+msgid "Display Settings"
+msgstr "Настройки монитора"
 
-#: ../src/schemas/org.gnome.shell.extensions.quake-terminal.gschema.xml:11
-msgid "Toggle Terminal"
-msgstr "Переключение терминала"
+#: src/prefs.js:720
+msgid "Show on the current Display"
+msgstr "Показывать на текущем мониторе"
 
-#: ../src/schemas/org.gnome.shell.extensions.quake-terminal.gschema.xml:16
-msgid "Terminal Vertical Size"
-msgstr "Размер терминала по вертикали"
+#: src/prefs.js:721
+msgid "Show on the Display that has the mouse pointer"
+msgstr "Показывать на мониторе с курсором мыши"
 
-#: ../src/schemas/org.gnome.shell.extensions.quake-terminal.gschema.xml:17
-msgid "Specify the vertical size of the terminal in percentage"
-msgstr "Укажите вертикальный размер терминала в процентах"
+#: src/prefs.js:734
+msgid "Show on the primary Display"
+msgstr "Показывать на основном мониторе"
 
-#: ../src/schemas/org.gnome.shell.extensions.quake-terminal.gschema.xml:21
-msgid "Terminal Horizontal Size"
-msgstr "Горизонтальный размер терминала"
+#: src/prefs.js:735
+msgid "Show on the Display set as Primary in GNOME Display settings"
+msgstr "Показывать на мониторе, назначенном основным в настройках GNOME"
 
-#: ../src/schemas/org.gnome.shell.extensions.quake-terminal.gschema.xml:22
-msgid "Specify the horizontal size of the terminal in percentage"
-msgstr "Укажите горизонтальный размер терминала в процентах"
+#: src/prefs.js:763
+msgid "Display"
+msgstr "Монитор"
 
-#: ../src/schemas/org.gnome.shell.extensions.quake-terminal.gschema.xml:27
-msgid "Terminal Horizontal Alignment"
-msgstr "Выравнивание терминала по гризонтали"
+#: src/prefs.js:764
+msgid "Which display to render the application on"
+msgstr "На каком мониторе отображать приложение"
 
-#: ../src/schemas/org.gnome.shell.extensions.quake-terminal.gschema.xml:43
-msgid "Specify the display where the terminal should be rendered"
-msgstr "Укажите дисплей, на котором должен отображаться терминал"
+#: src/prefs.js:811
+msgid "Animation Time"
+msgstr "Длительность анимации"
 
-#: ../src/schemas/org.gnome.shell.extensions.quake-terminal.gschema.xml:57
-msgid "Animation time"
-msgstr "Время анимации"
-
-#: ../src/schemas/org.gnome.shell.extensions.quake-terminal.gschema.xml:62
-msgid "Hide terminal window in certain modes"
-msgstr "Скрывать теминал в режиме обзора"
-
-#: ../src/schemas/org.gnome.shell.extensions.quake-terminal.gschema.xml:67
-msgid "Terminal launch arguments per application"
-msgstr "Аргументы запуска терминала для каждого приложения"
-
-#: ../src/schemas/org.gnome.shell.extensions.quake-terminal.gschema.xml:68
-msgid "Dictionary mapping application IDs to their terminal launch arguments"
-msgstr ""
-"Словарь сопоставляет идентификаторы приложений с их аргументами запуска в "
-"терминале"
+#: src/prefs.js:812
+msgid "Duration of the dropdown animation in milliseconds"
+msgstr "Продолжительность анимации выдвижения в миллисекундах"

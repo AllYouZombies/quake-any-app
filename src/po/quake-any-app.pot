@@ -1,0 +1,218 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR Rustam Astafeev
+# This file is distributed under the same license as the Quake Any App package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: Quake Any App 1.1.0\n"
+"Report-Msgid-Bugs-To: https://github.com/AllYouZombies/quake-any-app/issues\n"
+"POT-Creation-Date: 2026-03-24 17:57+0500\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=CHARSET\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+#: src/prefs.js:213 src/prefs.js:224
+msgid "Application"
+msgstr ""
+
+#: src/prefs.js:305
+msgid "Launch Options"
+msgstr ""
+
+#: src/prefs.js:307
+msgid "Optional command-line arguments. For example: -o font_size=18"
+msgstr ""
+
+#: src/prefs.js:367
+msgid "General"
+msgstr ""
+
+#: src/prefs.js:374
+msgid "Toggle Shortcut"
+msgstr ""
+
+#: src/prefs.js:375
+msgid "Shortcut to activate this application"
+msgstr ""
+
+#: src/prefs.js:379
+msgid "Select a shortcut"
+msgstr ""
+
+#: src/prefs.js:403
+msgid "Set Shortcut"
+msgstr ""
+
+#: src/prefs.js:455
+msgid "Auto Hide App"
+msgstr ""
+
+#: src/prefs.js:456
+msgid "Hide window when it loses focus"
+msgstr ""
+
+#: src/prefs.js:469
+msgid "Position"
+msgstr ""
+
+#: src/prefs.js:478
+msgid "Top"
+msgstr ""
+
+#: src/prefs.js:478
+msgid "Bottom"
+msgstr ""
+
+#: src/prefs.js:478
+msgid "Left"
+msgstr ""
+
+#: src/prefs.js:478
+msgid "Right"
+msgstr ""
+
+#: src/prefs.js:488
+msgid "Screen Edge"
+msgstr ""
+
+#: src/prefs.js:489
+msgid "Which edge the window should appear from"
+msgstr ""
+
+#: src/prefs.js:508
+msgid "Vertical Size"
+msgstr ""
+
+#: src/prefs.js:509
+msgid "Application vertical size"
+msgstr ""
+
+#: src/prefs.js:524 src/prefs.js:592
+msgid "Percent"
+msgstr ""
+
+#: src/prefs.js:524 src/prefs.js:592
+msgid "Pixels"
+msgstr ""
+
+#: src/prefs.js:534
+msgid "Vertical Size Unit"
+msgstr ""
+
+#: src/prefs.js:535
+msgid "Unit for vertical size measurement"
+msgstr ""
+
+#: src/prefs.js:552
+msgid "Application vertical size in pixels"
+msgstr ""
+
+#: src/prefs.js:555
+msgid "Application vertical size in percent"
+msgstr ""
+
+#: src/prefs.js:576
+msgid "Horizontal Size"
+msgstr ""
+
+#: src/prefs.js:577
+msgid "Application horizontal size"
+msgstr ""
+
+#: src/prefs.js:602
+msgid "Horizontal Size Unit"
+msgstr ""
+
+#: src/prefs.js:603
+msgid "Unit for horizontal size measurement"
+msgstr ""
+
+#: src/prefs.js:620
+msgid "Application horizontal size in pixels"
+msgstr ""
+
+#: src/prefs.js:623
+msgid "Application horizontal size in percent"
+msgstr ""
+
+#: src/prefs.js:647
+msgid "Left/Top"
+msgstr ""
+
+#: src/prefs.js:647
+msgid "Right/Bottom"
+msgstr ""
+
+#: src/prefs.js:647
+msgid "Center"
+msgstr ""
+
+#: src/prefs.js:654
+msgid "Alignment"
+msgstr ""
+
+#: src/prefs.js:655
+msgid "Window alignment (horizontal for top/bottom, vertical for left/right)"
+msgstr ""
+
+#: src/prefs.js:673
+msgid "Always On Top"
+msgstr ""
+
+#: src/prefs.js:674
+msgid "Window appears on top of all other non-topmost windows"
+msgstr ""
+
+#: src/prefs.js:687
+msgid "Hide In Certain Modes"
+msgstr ""
+
+#: src/prefs.js:688
+msgid "Window won't appear in overview mode or Alt+Tab"
+msgstr ""
+
+#: src/prefs.js:710
+msgid "Global"
+msgstr ""
+
+#: src/prefs.js:715
+msgid "Display Settings"
+msgstr ""
+
+#: src/prefs.js:720
+msgid "Show on the current Display"
+msgstr ""
+
+#: src/prefs.js:721
+msgid "Show on the Display that has the mouse pointer"
+msgstr ""
+
+#: src/prefs.js:734
+msgid "Show on the primary Display"
+msgstr ""
+
+#: src/prefs.js:735
+msgid "Show on the Display set as Primary in GNOME Display settings"
+msgstr ""
+
+#: src/prefs.js:763
+msgid "Display"
+msgstr ""
+
+#: src/prefs.js:764
+msgid "Which display to render the application on"
+msgstr ""
+
+#: src/prefs.js:811
+msgid "Animation Time"
+msgstr ""
+
+#: src/prefs.js:812
+msgid "Duration of the dropdown animation in milliseconds"
+msgstr ""
