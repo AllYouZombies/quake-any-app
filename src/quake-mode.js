@@ -272,7 +272,6 @@ export const QuakeMode = class {
     this._stageViewFallbackTimeoutId = null;
     this._appWindowUnmanagedId = null;
     this._appWindowFocusId = null;
-    this._appWindowMinimizedId = null;
     this._workspaceChangedId = null;
     this._wmMapSignalId = null;
     this._appChangedId = null;
@@ -459,11 +458,6 @@ export const QuakeMode = class {
     if (this._appWindowUnmanagedId && this.appWindow) {
       this.appWindow.disconnect(this._appWindowUnmanagedId);
       this._appWindowUnmanagedId = null;
-    }
-
-    if (this._appWindowMinimizedId && this.appWindow) {
-      this.appWindow.disconnect(this._appWindowMinimizedId);
-      this._appWindowMinimizedId = null;
     }
 
     if (this._appChangedId && this._app) {
@@ -712,42 +706,11 @@ export const QuakeMode = class {
       });
     }
 
-    if (!this._appWindowMinimizedId) {
-      /**
-       * Hiding leaves the actor fully transparent and Clutter-hidden, and
-       * nothing in GNOME restores either of those: `_minimizeWindowDone` only
-       * resets opacity when the minimize animation actually ran, and we skip
-       * it. So a window brought back by anything other than our own shortcut
-       * (Alt+Tab, a click in the overview, another app activating it) would be
-       * focused but invisible. Undo it here.
-       */
-      this._appWindowMinimizedId = appWindow.connect(
-        "notify::minimized",
-        () => {
-          if (appWindow.minimized || !this._shouldBeHidden) {
-            return;
-          }
-
-          this._shouldBeHidden = false;
-
-          if (!this.actor) {
-            return;
-          }
-
-          this.actor.remove_all_transitions();
-          this.actor.translation_x = 0;
-          this.actor.translation_y = 0;
-          this.actor.opacity = 255;
-          this.actor.show();
-        }
-      );
-    }
-
     if (!this._appWindowFocusId) {
       this._appWindowFocusId = Shell.Global.get().display.connect(
         "notify::focus-window",
         (source) => {
-          this._handleHideOnFocusLoss(source);
+          this._handleFocusChange(source);
         }
       );
     }
@@ -1166,22 +1129,47 @@ export const QuakeMode = class {
   }
 
   /**
-   * Hides the window when it loses focus.
+   * Reacts to focus moving around: hides the window when it loses focus, and
+   * makes it visible again when something else brought it up.
    *
    * @param {Meta.Display} source - The display object.
    */
-  _handleHideOnFocusLoss(source) {
+  _handleFocusChange(source) {
+    if (!source || !this.appWindow) {
+      return;
+    }
+
+    if (source.focus_window === this.appWindow) {
+      /**
+       * Focused while we still believe it is hidden, so it was brought up by
+       * something other than our shortcut: Alt+Tab, a click in the overview,
+       * another application activating it. Hiding leaves the actor fully
+       * transparent and Clutter-hidden and GNOME restores neither, which used
+       * to leave a focused but invisible window.
+       *
+       * This deliberately keys off focus rather than `notify::minimized`. That
+       * signal also fires for GNOME's own bookkeeping, so restoring there made
+       * the window flash wherever the unminimize animation happened to start
+       * and then get hidden again by the branch below, over and over.
+       */
+      if (this._shouldBeHidden) {
+        this._shouldBeHidden = false;
+
+        if (this.actor) {
+          this.actor.remove_all_transitions();
+          this.actor.translation_x = 0;
+          this.actor.translation_y = 0;
+          this.actor.opacity = 255;
+          this.actor.show();
+        }
+      }
+
+      return;
+    }
+
     const shouldAutoHide = this._settings.get_boolean(`auto-hide-window-${this._slotId}`);
 
     if (!shouldAutoHide) {
-      return;
-    }
-
-    if (!source) {
-      return;
-    }
-
-    if (!this.appWindow) {
       return;
     }
 
@@ -1194,10 +1182,6 @@ export const QuakeMode = class {
     }
 
     if (isWlClipboard(source.focus_window)) {
-      return;
-    }
-
-    if (source.focus_window === this.appWindow) {
       return;
     }
 
