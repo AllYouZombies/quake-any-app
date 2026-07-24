@@ -1,3 +1,20 @@
+# [1.2.0](https://github.com/AllYouZombies/quake-any-app/compare/v1.1.0...v1.2.0) (2026-07-24)
+
+
+### Bug Fixes
+
+* **i18n:** repair update_strings.sh and complete both catalogs ([2bdf4b5](https://github.com/AllYouZombies/quake-any-app/commit/2bdf4b5e478d43a6956a81e2de084270152767a8))
+* keep the close animation patch safe next to other extensions ([ff944ec](https://github.com/AllYouZombies/quake-any-app/commit/ff944ecfbba3cb2019a8ba56ed1a9451cd28de51))
+* repair window lifecycle and per-slot signal handling ([5badfc8](https://github.com/AllYouZombies/quake-any-app/commit/5badfc891b6b962e0cbbe11a98b0ff3ba3f2cdef)), closes [diegodario88/quake-terminal#85](https://github.com/diegodario88/quake-terminal/issues/85)
+* satisfy eslint so the release workflow can run ([2197a24](https://github.com/AllYouZombies/quake-any-app/commit/2197a24b8e700fb3a143b35b824fd0b6089ac347))
+* stop the hidden window from flashing itself back into view ([37c6e4f](https://github.com/AllYouZombies/quake-any-app/commit/37c6e4f047e6ac0283674f111a4c025b2497ee10))
+
+
+### Features
+
+* add support for GNOME Shell 50 ([975cf26](https://github.com/AllYouZombies/quake-any-app/commit/975cf262592c6e97403a59b8a55c7ed0d0e14033))
+* Implement support for multiple Quake mode slots with individual settings ([4894568](https://github.com/AllYouZombies/quake-any-app/commit/48945680d9397aaa572b87dc5b45cf29b3a6f75d))
+
 # [1.1.0](https://github.com/AllYouZombies/quake-any-app/compare/v1.0.0...v1.1.0) (2025-10-22)
 
 
