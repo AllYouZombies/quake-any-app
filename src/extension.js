@@ -110,9 +110,10 @@ export default class QuakeAnyAppExtension extends Extension {
       }
 
       this._quakeModes[slotIndex] = new QuakeMode(app, this._settings, slotId);
-      return this._quakeModes[slotIndex].toggle();
+      await this._quakeModes[slotIndex].toggle();
+      return;
     }
 
-    return quakeMode.toggle();
+    await quakeMode.toggle();
   }
 }

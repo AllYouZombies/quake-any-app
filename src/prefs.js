@@ -189,7 +189,7 @@ export default class QuakeTerminalPreferences extends ExtensionPreferences {
         }
 
         // Create global settings page
-        const globalPage = this._createGlobalPage(settings, window);
+        const globalPage = this._createGlobalPage(settings);
         window.add(globalPage);
 
         return Promise.resolve();
@@ -197,6 +197,7 @@ export default class QuakeTerminalPreferences extends ExtensionPreferences {
 
     /**
      * Creates a page for a specific slot
+     *
      * @param {Gio.Settings} settings - Settings object
      * @param {Adw.PreferencesWindow} window - Parent window
      * @param {number} slotId - Slot identifier (1-3)
@@ -704,11 +705,11 @@ export default class QuakeTerminalPreferences extends ExtensionPreferences {
 
     /**
      * Creates global settings page
+     *
      * @param {Gio.Settings} settings - Settings object
-     * @param {Adw.PreferencesWindow} window - Parent window
      * @returns {Adw.PreferencesPage}
      */
-    _createGlobalPage(settings, window) {
+    _createGlobalPage(settings) {
         const page = new Adw.PreferencesPage();
         page.set_title(_("Global"));
         page.set_name("global-preferences");
