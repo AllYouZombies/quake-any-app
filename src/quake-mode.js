@@ -155,6 +155,12 @@ function installCloseAnimationPatch() {
      * in effect.
      */
     if (!instance) {
+      /**
+       * Installed as a method on `Main.wm`, so `this` is the window manager.
+       * Passing it on keeps whatever receiver the caller used, which matters
+       * when another extension wraps this same method.
+       */
+      // eslint-disable-next-line no-invalid-this
       return previous.apply(this, [actor, types]);
     }
 
