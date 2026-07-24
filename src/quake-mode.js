@@ -51,6 +51,13 @@ let originalShouldAnimateActor = null;
 let patchedShouldAnimateActor = null;
 
 /**
+ * Whether our replacement should still do anything. Cleared on uninstall so
+ * that a copy another extension holds on to degrades into a plain pass-through
+ * instead of continuing to change GNOME's behavior after we are disabled.
+ */
+let closeAnimationPatchActive = false;
+
+/**
  * Finds the QuakeMode instance that owns the given window actor.
  *
  * @param {Meta.WindowActor} actor - The actor being animated.
@@ -146,7 +153,7 @@ function installCloseAnimationPatch() {
     /** @type {any} */ types
   ) {
     const stack = new Error().stack;
-    const forClosing = stack.includes("_destroyWindow@");
+    const forClosing = closeAnimationPatchActive && stack.includes("_destroyWindow@");
     const instance = forClosing ? findInstanceForActor(actor) : null;
 
     /**
@@ -185,6 +192,7 @@ function installCloseAnimationPatch() {
 
   // @ts-ignore
   Main.wm._shouldAnimateActor = patchedShouldAnimateActor;
+  closeAnimationPatchActive = true;
 }
 
 /**
@@ -195,14 +203,17 @@ function uninstallCloseAnimationPatch() {
     return;
   }
 
+  /** Cleared first: whatever happens below, we stop changing any behavior. */
+  closeAnimationPatchActive = false;
+
   // @ts-ignore
   if (Main.wm._shouldAnimateActor !== patchedShouldAnimateActor) {
     /**
      * Another extension patched on top of us and holds our function as its own
-     * "original". Restoring would cut it out of its chain, and forgetting our
-     * function would let the next install build a second one that calls this
-     * one. Leave it where it is: it delegates to the captured `previous` and
-     * only ever acts on actors of live instances, so an idle one is inert.
+     * "original". Restoring would cut it out of its chain and break it, and
+     * forgetting our function would let the next install build a second one
+     * that calls this one. So it stays reachable, but with the flag above
+     * cleared it is now a plain pass-through to the implementation it wrapped.
      */
     return;
   }
@@ -387,20 +398,6 @@ export const QuakeMode = class {
       return null;
     }
 
-    if ("clip_y" in actor) {
-      return actor;
-    }
-
-    Object.defineProperty(actor, "clip_y", {
-      get() {
-        return this.clip_rect.origin.y;
-      },
-      set(y) {
-        const rect = this.clip_rect;
-        this.set_clip(rect.origin.x, y, rect.size.width, rect.size.height);
-      },
-    });
-
     return actor;
   }
 
@@ -464,6 +461,8 @@ export const QuakeMode = class {
       this._app.disconnect(this._appChangedId);
       this._appChangedId = null;
     }
+
+    this._restoreSkipTaskbarProperty();
 
     if (this._appWindowFocusId) {
       Shell.Global.get().display.disconnect(this._appWindowFocusId);
@@ -1126,6 +1125,23 @@ export const QuakeMode = class {
     });
 
     this._isTaskbarConfigured = true;
+  }
+
+  /**
+   * Hands `skip_taskbar` back to GNOME.
+   *
+   * The override above is an own, configurable property shadowing the one the
+   * window inherits, so deleting it leaves the window exactly as we found it.
+   */
+  _restoreSkipTaskbarProperty() {
+    const appWindow = this._appWindow;
+
+    if (!this._isTaskbarConfigured || !appWindow) {
+      return;
+    }
+
+    delete appWindow.skip_taskbar;
+    this._isTaskbarConfigured = null;
   }
 
   /**
