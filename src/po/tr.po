@@ -1,21 +1,42 @@
-# SOME DESCRIPTIVE TITLE.
-# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
-# This file is distributed under the same license as the PACKAGE package.
+# Turkish translation for Quake Any App
+# Copyright (C) 2025 Rustam Astafeev
+# This file is distributed under the same license as the Quake Any App package.
 # Osman KARAGÖZ <osmank3@gmail.com>, 2025.
+# Strings added in 2026 were drafted without a native speaker and would
+# benefit from review.
 #
 msgid ""
 msgstr ""
 "Project-Id-Version: Quake Any App 1.1.0\n"
 "Report-Msgid-Bugs-To: https://github.com/AllYouZombies/quake-any-app/issues\n"
-"POT-Creation-Date: 2026-03-24 17:57+0500\n"
-"PO-Revision-Date: 2025-10-09 17:36+0300\n"
-"Last-Translator: Osman KARAGÖZ <osmank3@gmail.com>\n"
+"POT-Creation-Date: 2026-07-25 02:37+0500\n"
+"PO-Revision-Date: 2026-07-25 02:37+0500\n"
+"Last-Translator: Rustam Astafeev <>\n"
 "Language-Team: \n"
 "Language: tr\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "X-Generator: Poedit 3.6\n"
+
+#: src/extension.js:90 src/extension.js:103
+msgid "Quake Any App"
+msgstr "Quake Any App"
+
+#: src/extension.js:91
+#, javascript-format
+msgid "Select an application for slot %s in preferences."
+msgstr "Ayarlardan %s. yuva için bir uygulama seçin."
+
+#: src/extension.js:104
+#, javascript-format
+msgid "No application found with id %s. Skipping ..."
+msgstr "%s kimliğine sahip uygulama bulunamadı. Atlanıyor ..."
+
+#: src/prefs.js:207
+#, javascript-format
+msgid "Slot %s"
+msgstr "Yuva %s"
 
 #: src/prefs.js:213 src/prefs.js:224
 msgid "Application"
@@ -27,7 +48,7 @@ msgstr "Başlatma Seçenekleri"
 
 #: src/prefs.js:307
 msgid "Optional command-line arguments. For example: -o font_size=18"
-msgstr ""
+msgstr "İsteğe bağlı komut satırı argümanları. Örneğin: -o font_size=18"
 
 #: src/prefs.js:367
 msgid "General"
@@ -39,186 +60,188 @@ msgstr "Açma/Kapama Kısayolu"
 
 #: src/prefs.js:375
 msgid "Shortcut to activate this application"
-msgstr ""
+msgstr "Bu uygulamayı etkinleştirmek için kısayol"
 
 #: src/prefs.js:379
 msgid "Select a shortcut"
 msgstr "Kısayol seçin"
 
-#: src/prefs.js:403
+#: src/prefs.js:393
+#, javascript-format
+msgid "Enter new shortcut for Slot %s"
+msgstr "%s. yuva için yeni kısayol girin"
+
+#: src/prefs.js:406
 msgid "Set Shortcut"
 msgstr "Kısayol Ayarla"
 
-#: src/prefs.js:455
+#: src/prefs.js:458
 msgid "Auto Hide App"
-msgstr "Uçbirimi Otomatik Gizle"
+msgstr "Uygulamayı Otomatik Gizle"
 
-#: src/prefs.js:456
+#: src/prefs.js:459
 msgid "Hide window when it loses focus"
-msgstr ""
+msgstr "Odağını kaybettiğinde pencereyi gizle"
 
-#: src/prefs.js:469
+#: src/prefs.js:472
 msgid "Position"
 msgstr "Konum"
 
-#: src/prefs.js:478
+#: src/prefs.js:481
 msgid "Top"
-msgstr ""
+msgstr "Üst"
 
-#: src/prefs.js:478
+#: src/prefs.js:481
 msgid "Bottom"
-msgstr ""
+msgstr "Alt"
 
-#: src/prefs.js:478
+#: src/prefs.js:481
 msgid "Left"
 msgstr "Sol"
 
-#: src/prefs.js:478
+#: src/prefs.js:481
 msgid "Right"
 msgstr "Sağ"
 
-#: src/prefs.js:488
+#: src/prefs.js:491
 msgid "Screen Edge"
-msgstr ""
+msgstr "Ekran Kenarı"
 
-#: src/prefs.js:489
+#: src/prefs.js:492
 msgid "Which edge the window should appear from"
-msgstr ""
+msgstr "Pencerenin hangi kenardan görüneceği"
 
-#: src/prefs.js:508
+#: src/prefs.js:511
 msgid "Vertical Size"
 msgstr "Dikey Boyut"
 
-#: src/prefs.js:509
+#: src/prefs.js:512
 msgid "Application vertical size"
-msgstr ""
+msgstr "Uygulamanın dikey boyutu"
 
-#: src/prefs.js:524 src/prefs.js:592
+#: src/prefs.js:527 src/prefs.js:595
 msgid "Percent"
-msgstr ""
+msgstr "Yüzde"
 
-#: src/prefs.js:524 src/prefs.js:592
+#: src/prefs.js:527 src/prefs.js:595
 msgid "Pixels"
-msgstr ""
+msgstr "Piksel"
 
-#: src/prefs.js:534
+#: src/prefs.js:537
 msgid "Vertical Size Unit"
-msgstr ""
+msgstr "Dikey Boyut Birimi"
 
-#: src/prefs.js:535
+#: src/prefs.js:538
 msgid "Unit for vertical size measurement"
-msgstr ""
-
-#: src/prefs.js:552
-msgid "Application vertical size in pixels"
-msgstr ""
+msgstr "Dikey boyut ölçü birimi"
 
 #: src/prefs.js:555
-msgid "Application vertical size in percent"
-msgstr ""
+msgid "Application vertical size in pixels"
+msgstr "Uygulamanın piksel cinsinden dikey boyutu"
 
-#: src/prefs.js:576
+#: src/prefs.js:558
+msgid "Application vertical size in percent"
+msgstr "Uygulamanın yüzde cinsinden dikey boyutu"
+
+#: src/prefs.js:579
 msgid "Horizontal Size"
 msgstr "Yatay Boyut"
 
-#: src/prefs.js:577
+#: src/prefs.js:580
 msgid "Application horizontal size"
-msgstr ""
+msgstr "Uygulamanın yatay boyutu"
 
-#: src/prefs.js:602
+#: src/prefs.js:605
 msgid "Horizontal Size Unit"
-msgstr ""
+msgstr "Yatay Boyut Birimi"
 
-#: src/prefs.js:603
+#: src/prefs.js:606
 msgid "Unit for horizontal size measurement"
-msgstr ""
-
-#: src/prefs.js:620
-msgid "Application horizontal size in pixels"
-msgstr ""
+msgstr "Yatay boyut ölçü birimi"
 
 #: src/prefs.js:623
+msgid "Application horizontal size in pixels"
+msgstr "Uygulamanın piksel cinsinden yatay boyutu"
+
+#: src/prefs.js:626
 msgid "Application horizontal size in percent"
-msgstr ""
+msgstr "Uygulamanın yüzde cinsinden yatay boyutu"
 
-#: src/prefs.js:647
+#: src/prefs.js:650
 msgid "Left/Top"
-msgstr ""
+msgstr "Sol/Üst"
 
-#: src/prefs.js:647
+#: src/prefs.js:650
 msgid "Right/Bottom"
-msgstr ""
+msgstr "Sağ/Alt"
 
-#: src/prefs.js:647
+#: src/prefs.js:650
 msgid "Center"
 msgstr "Merkez"
 
-#: src/prefs.js:654
+#: src/prefs.js:657
 msgid "Alignment"
-msgstr ""
+msgstr "Hizalama"
 
-#: src/prefs.js:655
+#: src/prefs.js:658
 msgid "Window alignment (horizontal for top/bottom, vertical for left/right)"
-msgstr ""
+msgstr "Pencere hizalaması (üst/alt için yatay, sol/sağ için dikey)"
 
-#: src/prefs.js:673
+#: src/prefs.js:676
 msgid "Always On Top"
 msgstr "Daima Üstte"
 
-#: src/prefs.js:674
+#: src/prefs.js:677
 msgid "Window appears on top of all other non-topmost windows"
-msgstr ""
+msgstr "Pencere, en üstte olmayan diğer tüm pencerelerin üzerinde görünür"
 
-#: src/prefs.js:687
+#: src/prefs.js:690
 msgid "Hide In Certain Modes"
 msgstr "Belirli Modlarda Gizle"
 
-#: src/prefs.js:688
+#: src/prefs.js:691
 msgid "Window won't appear in overview mode or Alt+Tab"
-msgstr ""
+msgstr "Pencere genel görünümde veya Alt+Tab içinde görünmez"
 
-#: src/prefs.js:710
+#: src/prefs.js:713
 msgid "Global"
-msgstr ""
+msgstr "Global"
 
-#: src/prefs.js:715
+#: src/prefs.js:718
 msgid "Display Settings"
-msgstr ""
+msgstr "Ekran Ayarları"
 
-#: src/prefs.js:720
+#: src/prefs.js:723
 msgid "Show on the current Display"
 msgstr "Mevcut Ekranda Göster"
 
-#: src/prefs.js:721
+#: src/prefs.js:724
 msgid "Show on the Display that has the mouse pointer"
-msgstr ""
+msgstr "Fare imlecinin bulunduğu ekranda göster"
 
-#: src/prefs.js:734
+#: src/prefs.js:737
 msgid "Show on the primary Display"
 msgstr "Birincil ekranda göster"
 
-#: src/prefs.js:735
+#: src/prefs.js:738
 msgid "Show on the Display set as Primary in GNOME Display settings"
-msgstr ""
+msgstr "GNOME Ekran ayarlarında Birincil olarak ayarlanan ekranda göster"
 
-#: src/prefs.js:763
+#: src/prefs.js:766
 msgid "Display"
 msgstr "Ekran"
 
-#: src/prefs.js:764
+#: src/prefs.js:767
 msgid "Which display to render the application on"
-msgstr ""
+msgstr "Uygulamanın hangi ekranda gösterileceği"
 
-#: src/prefs.js:811
+#: src/prefs.js:819
 msgid "Animation Time"
 msgstr "Animasyon Süresi"
 
-#: src/prefs.js:812
+#: src/prefs.js:820
 msgid "Duration of the dropdown animation in milliseconds"
 msgstr "Yukarıdan inmenin milisaniye cinsinden süresi"
-
-#~ msgid "Select an application in Quake Terminal preferences."
-#~ msgstr "Quake Uçbirim ayarlarından bir uygulama seçin."
 
 #~ msgid "Quake Terminal Settings"
 #~ msgstr "Quake Uçbirim Ayarları"
@@ -235,9 +258,6 @@ msgstr "Yukarıdan inmenin milisaniye cinsinden süresi"
 
 #~ msgid "Shortcut to activate the terminal application"
 #~ msgstr "Uçbirim uygulamasını etkinleştirmek için kısayol"
-
-#~ msgid "Enter new shortcut to toggle Quake Terminal"
-#~ msgstr "Quake Uçbirim için yeni kısayol girin"
 
 #~ msgid "When enabled, this hides the Terminal window when it loses focus"
 #~ msgstr ""

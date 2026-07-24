@@ -1,4 +1,7 @@
+# Sources scanned for translatable strings, relative to the repository root.
+# The GSettings schema is deliberately left out: prefs.js already carries its
+# own strings for everything the user sees, and the schema summaries only ever
+# show up in dconf-editor.
 src/extension.js
 src/prefs.js
 src/quake-mode.js
-src/schemas/org.gnome.shell.extensions.quake-any-app.gschema.xml
