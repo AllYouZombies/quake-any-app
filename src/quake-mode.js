@@ -129,8 +129,17 @@ function installCloseAnimationPatch() {
     return;
   }
 
+  /**
+   * Captured in a local const, and deliberately not read from module scope.
+   * Another extension patching the same method stores our function as its own
+   * "original" and keeps calling it, so this closure can outlive our teardown.
+   * Reading module state here meant it either called into null once disable()
+   * cleared it, or, after a reinstall, called straight back into itself.
+   */
   // @ts-ignore
-  originalShouldAnimateActor = Main.wm._shouldAnimateActor;
+  const previous = Main.wm._shouldAnimateActor;
+
+  originalShouldAnimateActor = previous;
 
   patchedShouldAnimateActor = function (
     /** @type {Meta.WindowActor & { ease: Function }} */ actor,
@@ -146,7 +155,7 @@ function installCloseAnimationPatch() {
      * in effect.
      */
     if (!instance) {
-      return originalShouldAnimateActor.apply(this, [actor, types]);
+      return previous.apply(this, [actor, types]);
     }
 
     /** Store the original ease() method of the window actor. */
@@ -181,11 +190,19 @@ function uninstallCloseAnimationPatch() {
   }
 
   // @ts-ignore
-  if (Main.wm._shouldAnimateActor === patchedShouldAnimateActor) {
-    // @ts-ignore
-    Main.wm._shouldAnimateActor = originalShouldAnimateActor;
+  if (Main.wm._shouldAnimateActor !== patchedShouldAnimateActor) {
+    /**
+     * Another extension patched on top of us and holds our function as its own
+     * "original". Restoring would cut it out of its chain, and forgetting our
+     * function would let the next install build a second one that calls this
+     * one. Leave it where it is: it delegates to the captured `previous` and
+     * only ever acts on actors of live instances, so an idle one is inert.
+     */
+    return;
   }
 
+  // @ts-ignore
+  Main.wm._shouldAnimateActor = originalShouldAnimateActor;
   originalShouldAnimateActor = null;
   patchedShouldAnimateActor = null;
 }
