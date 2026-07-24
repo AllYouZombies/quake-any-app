@@ -21,7 +21,7 @@ function updateMetadata(version) {
     metadata["version-name"] = version;
 
     // Increment version number (GNOME extension version)
-    metadata.version += 1;
+    metadata.version = (Number.isInteger(metadata.version) ? metadata.version : 0) + 1;
 
     writeFileSync(metadataPath, `${JSON.stringify(metadata, null, 2)}\n`);
     console.log(
