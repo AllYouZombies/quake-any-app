@@ -204,7 +204,7 @@ export default class QuakeTerminalPreferences extends ExtensionPreferences {
      */
     _createSlotPage(settings, window, slotId) {
         const page = new Adw.PreferencesPage();
-        page.set_title(_(`Slot ${slotId}`));
+        page.set_title(_("Slot %s").replace("%s", String(slotId)));
         page.set_name(`slot-${slotId}-preferences`);
         page.set_icon_name("applications-system-symbolic");
 
@@ -390,7 +390,10 @@ export default class QuakeTerminalPreferences extends ExtensionPreferences {
             const ctl = new Gtk.EventControllerKey();
 
             const statusPage = new Adw.StatusPage({
-                description: _(`Enter new shortcut for Slot ${slotId}`),
+                description: _("Enter new shortcut for Slot %s").replace(
+                    "%s",
+                    String(slotId)
+                ),
                 icon_name: "preferences-desktop-keyboard-shortcuts-symbolic",
             });
 
@@ -780,6 +783,15 @@ export default class QuakeTerminalPreferences extends ExtensionPreferences {
             settings.set_int("monitor-screen", monitorRow.selected);
         });
 
+        // The explicit display choice only applies when neither automatic mode
+        // is on, so both switches have to be taken into account.
+        const updateMonitorRowSensitivity = () => {
+            monitorRow.set_sensitive(
+                !settings.get_boolean("render-on-current-monitor") &&
+                !settings.get_boolean("render-on-primary-monitor")
+            );
+        };
+
         // watch for render-on-current-monitor changes
         settings.connect("changed::render-on-current-monitor", () => {
             if (
@@ -788,9 +800,7 @@ export default class QuakeTerminalPreferences extends ExtensionPreferences {
             ) {
                 settings.set_boolean("render-on-primary-monitor", false);
             }
-            monitorRow.set_sensitive(
-                !settings.get_boolean("render-on-current-monitor")
-            );
+            updateMonitorRowSensitivity();
         });
 
         // watch for render-on-primary-monitor changes
@@ -801,9 +811,7 @@ export default class QuakeTerminalPreferences extends ExtensionPreferences {
             ) {
                 settings.set_boolean("render-on-current-monitor", false);
             }
-            monitorRow.set_sensitive(
-                !settings.get_boolean("render-on-primary-monitor")
-            );
+            updateMonitorRowSensitivity();
         });
 
         // Animation Time
