@@ -66,7 +66,7 @@ export default class QuakeAnyAppExtension extends Extension {
     this._quakeModes = null;
   }
 
-  _handleQuakeModeApp(slotId) {
+  async _handleQuakeModeApp(slotId) {
     const slotIndex = slotId - 1; // Convert to 0-based index
     const quakeMode = this._quakeModes[slotIndex];
 
@@ -86,14 +86,26 @@ export default class QuakeAnyAppExtension extends Extension {
       const appId = this._settings.get_string(`app-id-${slotId}`);
 
       if (!appId) {
-        Main.notify(_(`Select an application for slot ${slotId} in Quake Any App preferences.`));
+        Main.notify(
+          _("Quake Any App"),
+          _("Select an application for slot %s in preferences.").replace(
+            "%s",
+            String(slotId)
+          )
+        );
         return;
       }
 
       const app = this._appSystem.lookup_app(appId);
 
       if (!app) {
-        Main.notify(_(`No application found with id ${appId}. Skipping ...`));
+        Main.notify(
+          _("Quake Any App"),
+          _("No application found with id %s. Skipping ...").replace(
+            "%s",
+            appId
+          )
+        );
         return;
       }
 

@@ -1,0 +1,242 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the Quake Any App package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: Quake Any App\n"
+"Report-Msgid-Bugs-To: https://github.com/AllYouZombies/quake-any-app/issues\n"
+"POT-Creation-Date: 2026-07-25 02:37+0500\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=CHARSET\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+#: src/extension.js:90 src/extension.js:103
+msgid "Quake Any App"
+msgstr ""
+
+#: src/extension.js:91
+#, javascript-format
+msgid "Select an application for slot %s in preferences."
+msgstr ""
+
+#: src/extension.js:104
+#, javascript-format
+msgid "No application found with id %s. Skipping ..."
+msgstr ""
+
+#: src/prefs.js:207
+#, javascript-format
+msgid "Slot %s"
+msgstr ""
+
+#: src/prefs.js:213 src/prefs.js:224
+msgid "Application"
+msgstr ""
+
+#: src/prefs.js:305
+msgid "Launch Options"
+msgstr ""
+
+#: src/prefs.js:307
+msgid "Optional command-line arguments. For example: -o font_size=18"
+msgstr ""
+
+#: src/prefs.js:367
+msgid "General"
+msgstr ""
+
+#: src/prefs.js:374
+msgid "Toggle Shortcut"
+msgstr ""
+
+#: src/prefs.js:375
+msgid "Shortcut to activate this application"
+msgstr ""
+
+#: src/prefs.js:379
+msgid "Select a shortcut"
+msgstr ""
+
+#: src/prefs.js:393
+#, javascript-format
+msgid "Enter new shortcut for Slot %s"
+msgstr ""
+
+#: src/prefs.js:406
+msgid "Set Shortcut"
+msgstr ""
+
+#: src/prefs.js:458
+msgid "Auto Hide App"
+msgstr ""
+
+#: src/prefs.js:459
+msgid "Hide window when it loses focus"
+msgstr ""
+
+#: src/prefs.js:472
+msgid "Position"
+msgstr ""
+
+#: src/prefs.js:481
+msgid "Top"
+msgstr ""
+
+#: src/prefs.js:481
+msgid "Bottom"
+msgstr ""
+
+#: src/prefs.js:481
+msgid "Left"
+msgstr ""
+
+#: src/prefs.js:481
+msgid "Right"
+msgstr ""
+
+#: src/prefs.js:491
+msgid "Screen Edge"
+msgstr ""
+
+#: src/prefs.js:492
+msgid "Which edge the window should appear from"
+msgstr ""
+
+#: src/prefs.js:511
+msgid "Vertical Size"
+msgstr ""
+
+#: src/prefs.js:512
+msgid "Application vertical size"
+msgstr ""
+
+#: src/prefs.js:527 src/prefs.js:595
+msgid "Percent"
+msgstr ""
+
+#: src/prefs.js:527 src/prefs.js:595
+msgid "Pixels"
+msgstr ""
+
+#: src/prefs.js:537
+msgid "Vertical Size Unit"
+msgstr ""
+
+#: src/prefs.js:538
+msgid "Unit for vertical size measurement"
+msgstr ""
+
+#: src/prefs.js:555
+msgid "Application vertical size in pixels"
+msgstr ""
+
+#: src/prefs.js:558
+msgid "Application vertical size in percent"
+msgstr ""
+
+#: src/prefs.js:579
+msgid "Horizontal Size"
+msgstr ""
+
+#: src/prefs.js:580
+msgid "Application horizontal size"
+msgstr ""
+
+#: src/prefs.js:605
+msgid "Horizontal Size Unit"
+msgstr ""
+
+#: src/prefs.js:606
+msgid "Unit for horizontal size measurement"
+msgstr ""
+
+#: src/prefs.js:623
+msgid "Application horizontal size in pixels"
+msgstr ""
+
+#: src/prefs.js:626
+msgid "Application horizontal size in percent"
+msgstr ""
+
+#: src/prefs.js:650
+msgid "Left/Top"
+msgstr ""
+
+#: src/prefs.js:650
+msgid "Right/Bottom"
+msgstr ""
+
+#: src/prefs.js:650
+msgid "Center"
+msgstr ""
+
+#: src/prefs.js:657
+msgid "Alignment"
+msgstr ""
+
+#: src/prefs.js:658
+msgid "Window alignment (horizontal for top/bottom, vertical for left/right)"
+msgstr ""
+
+#: src/prefs.js:676
+msgid "Always On Top"
+msgstr ""
+
+#: src/prefs.js:677
+msgid "Window appears on top of all other non-topmost windows"
+msgstr ""
+
+#: src/prefs.js:690
+msgid "Hide In Certain Modes"
+msgstr ""
+
+#: src/prefs.js:691
+msgid "Window won't appear in overview mode or Alt+Tab"
+msgstr ""
+
+#: src/prefs.js:713
+msgid "Global"
+msgstr ""
+
+#: src/prefs.js:718
+msgid "Display Settings"
+msgstr ""
+
+#: src/prefs.js:723
+msgid "Show on the current Display"
+msgstr ""
+
+#: src/prefs.js:724
+msgid "Show on the Display that has the mouse pointer"
+msgstr ""
+
+#: src/prefs.js:737
+msgid "Show on the primary Display"
+msgstr ""
+
+#: src/prefs.js:738
+msgid "Show on the Display set as Primary in GNOME Display settings"
+msgstr ""
+
+#: src/prefs.js:766
+msgid "Display"
+msgstr ""
+
+#: src/prefs.js:767
+msgid "Which display to render the application on"
+msgstr ""
+
+#: src/prefs.js:819
+msgid "Animation Time"
+msgstr ""
+
+#: src/prefs.js:820
+msgid "Duration of the dropdown animation in milliseconds"
+msgstr ""

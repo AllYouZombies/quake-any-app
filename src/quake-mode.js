@@ -19,10 +19,198 @@
 import Clutter from "gi://Clutter";
 import GLib from "gi://GLib";
 import Gio from "gi://Gio";
+import Meta from "gi://Meta";
 import Shell from "gi://Shell";
 import * as Main from "resource:///org/gnome/shell/ui/main.js";
 
 const STARTUP_TIMER_IN_SECONDS = 5;
+
+/**
+ * How long (seconds) to wait for `stage-views-changed` after the actor is
+ * created before giving up and positioning the window anyway (CREATED_ACTOR
+ * → RUNNING fallback). Without it a missed signal would leave the slot stuck
+ * in CREATED_ACTOR, where extension.js silently drops every shortcut press.
+ */
+const CREATED_ACTOR_TIMEOUT_IN_SECONDS = 5;
+
+const ACTOR_NAME_PREFIX = "quake-any-app-";
+
+/**
+ * Live QuakeMode instances. The close-animation patch below is installed on
+ * `Main.wm` once for all of them, so it needs to know which actor belongs to
+ * which slot.
+ *
+ * @type {Set<QuakeMode>}
+ */
+const quakeModeInstances = new Set();
+
+/** The untouched `Main.wm._shouldAnimateActor`, captured on first install. */
+let originalShouldAnimateActor = null;
+
+/** Our replacement, kept so we only restore what we actually installed. */
+let patchedShouldAnimateActor = null;
+
+/**
+ * Finds the QuakeMode instance that owns the given window actor.
+ *
+ * @param {Meta.WindowActor} actor - The actor being animated.
+ * @returns {QuakeMode | null} The owning instance, or null when it is not ours.
+ */
+function findInstanceForActor(actor) {
+  for (const instance of quakeModeInstances) {
+    if (instance.actor === actor) {
+      return instance;
+    }
+  }
+
+  return null;
+}
+
+/**
+ * Builds the close animation parameters for the given slot and actor.
+ *
+ * @param {QuakeMode} instance - The slot that owns the actor.
+ * @param {Meta.WindowActor} actor - The actor being destroyed.
+ * @returns {object} Parameters for `actor.ease()`.
+ */
+function buildCloseAnimationParams(instance, actor) {
+  const screenEdge = instance._settings.get_string(
+    `screen-edge-${instance._slotId}`
+  );
+
+  const easeParams = {
+    mode: Clutter.AnimationMode.EASE_OUT_QUAD,
+    duration: instance._settings.get_int("animation-time"),
+    /**
+     * `onStopped` rather than `onComplete`: GNOME only considers the window
+     * destroyed once `_destroyWindowDone` runs, and `onComplete` is skipped
+     * when the animation gets interrupted, which would leave Mutter waiting
+     * forever for the effect to finish.
+     */
+    onStopped: () => {
+      // @ts-ignore
+      Main.wm._destroyWindowDone(Main.wm._shellwm, actor);
+    },
+  };
+
+  switch (screenEdge) {
+    case "top":
+      easeParams.translation_y = actor.height * -1;
+      easeParams.translation_x = 0;
+      break;
+    case "bottom":
+      easeParams.translation_y = actor.height;
+      easeParams.translation_x = 0;
+      break;
+    case "left":
+      easeParams.translation_x = actor.width * -1;
+      easeParams.translation_y = 0;
+      break;
+    case "right":
+      easeParams.translation_x = actor.width;
+      easeParams.translation_y = 0;
+      break;
+  }
+
+  return easeParams;
+}
+
+/**
+ * Installs the shared close-animation patch on `Main.wm`.
+ *
+ * This used to be done per instance, where each slot stored whatever was in
+ * `Main.wm._shouldAnimateActor` at construction time. With several slots that
+ * chained the patches together: destroying one slot restored a stale closure
+ * and disabled the animation of the others. A single shared patch keyed by
+ * actor avoids that entirely.
+ */
+function installCloseAnimationPatch() {
+  if (patchedShouldAnimateActor) {
+    return;
+  }
+
+  // @ts-ignore
+  originalShouldAnimateActor = Main.wm._shouldAnimateActor;
+
+  patchedShouldAnimateActor = function (
+    /** @type {Meta.WindowActor & { ease: Function }} */ actor,
+    /** @type {any} */ types
+  ) {
+    const stack = new Error().stack;
+    const forClosing = stack.includes("_destroyWindow@");
+    const instance = forClosing ? findInstanceForActor(actor) : null;
+
+    /**
+     * We specifically handle window closing events, but only when one of our
+     * actors is the target. For all other cases, the original behavior remains
+     * in effect.
+     */
+    if (!instance) {
+      return originalShouldAnimateActor.apply(this, [actor, types]);
+    }
+
+    /** Store the original ease() method of the window actor. */
+    const originalActorAnimate = actor.ease;
+
+    /**
+     * Intercept the next call to actor.ease() to perform a custom close
+     * animation based on screen edge. Afterward, immediately restore the
+     * original behavior.
+     */
+    actor.ease = function () {
+      actor.ease = originalActorAnimate;
+      originalActorAnimate.call(
+        actor,
+        buildCloseAnimationParams(instance, actor)
+      );
+    };
+
+    return true;
+  };
+
+  // @ts-ignore
+  Main.wm._shouldAnimateActor = patchedShouldAnimateActor;
+}
+
+/**
+ * Restores `Main.wm._shouldAnimateActor`, but only if it is still ours.
+ */
+function uninstallCloseAnimationPatch() {
+  if (!patchedShouldAnimateActor) {
+    return;
+  }
+
+  // @ts-ignore
+  if (Main.wm._shouldAnimateActor === patchedShouldAnimateActor) {
+    // @ts-ignore
+    Main.wm._shouldAnimateActor = originalShouldAnimateActor;
+  }
+
+  originalShouldAnimateActor = null;
+  patchedShouldAnimateActor = null;
+}
+
+/**
+ * Checks whether the given window is a wl-clipboard helper window.
+ *
+ * Under Wayland `wl-copy` / `wl-paste` briefly create a window that takes the
+ * keyboard focus. Without this check, copying from the quake window makes it
+ * hide itself right under the user.
+ *
+ * @param {Meta.Window} win - The window that just took focus.
+ * @returns {boolean} True when the window belongs to wl-clipboard.
+ */
+function isWlClipboard(win) {
+  if (!win) {
+    return false;
+  }
+
+  if (win.get_client_type() !== Meta.WindowClientType.WAYLAND) {
+    return false;
+  }
+
+  return win.title === "wl-clipboard";
+}
 
 /**
  * Quake Mode Module
@@ -58,11 +246,18 @@ export const QuakeMode = class {
     this._internalState = QuakeMode.LIFECYCLE.READY;
 
     this._sourceTimeoutLoopId = null;
+    this._stageViewFallbackTimeoutId = null;
     this._appWindowUnmanagedId = null;
     this._appWindowFocusId = null;
+    this._appWindowMinimizedId = null;
+    this._workspaceChangedId = null;
     this._wmMapSignalId = null;
     this._appChangedId = null;
     this._actorStageViewChangedId = null;
+    this._overviewHidingId = null;
+    this._overviewHiddenId = null;
+    this._overviewShowRetryId = null;
+    this._shouldBeHidden = false;
 
     /**
      *@type {Meta.Window}
@@ -70,12 +265,9 @@ export const QuakeMode = class {
     this._appWindow = null;
     this._isTaskbarConfigured = null;
 
-    /** We will monkey-patch this method. Let's store the original one. */
-    // @ts-ignore
-    this._original_shouldAnimateActor = Main.wm._shouldAnimateActor;
-
     // Enhance the close animation behavior when exiting
-    this._configureActorCloseAnimation();
+    quakeModeInstances.add(this);
+    installCloseAnimationPatch();
 
     /**
      * Stores the IDs of settings signal handlers.
@@ -129,7 +321,7 @@ export const QuakeMode = class {
          * @type {Meta.WindowActor & { ease: Function }}
          */
         const actor = w.get_compositor_private();
-        return actor.get_name() === `quake-any-app-${this._slotId}` && w.is_alive;
+        return actor.get_name() === `${ACTOR_NAME_PREFIX}${this._slotId}` && w.is_alive;
       });
 
       if (!ourWindow) {
@@ -137,13 +329,20 @@ export const QuakeMode = class {
       }
 
       this._appWindow = ourWindow;
-      if (!this._appWindowUnmanagedId) {
-        this._appWindowUnmanagedId = this._appWindow.connect(
-          "unmanaged",
-          () => {
-            this.destroy();
-          }
-        );
+
+      /**
+       * We are adopting a window that outlived the previous instance, which
+       * happens on every disable/enable cycle - the screen lock being the
+       * common one. Its signals died with that instance, so reconnect them
+       * here, otherwise auto hide and the overview handling stay silently
+       * broken until the application itself is restarted.
+       */
+      if (this._internalState !== QuakeMode.LIFECYCLE.DEAD) {
+        this._connectWindowSignals();
+
+        if (this._internalState === QuakeMode.LIFECYCLE.READY) {
+          this._internalState = QuakeMode.LIFECYCLE.RUNNING;
+        }
       }
     }
 
@@ -207,9 +406,20 @@ export const QuakeMode = class {
   }
 
   destroy() {
+    /**
+     * Set first: the getters below can adopt a window, and adopting one while
+     * tearing down would connect a fresh set of signals nobody disconnects.
+     */
+    this._internalState = QuakeMode.LIFECYCLE.DEAD;
+
     if (this._sourceTimeoutLoopId) {
       GLib.Source.remove(this._sourceTimeoutLoopId);
       this._sourceTimeoutLoopId = null;
+    }
+
+    if (this._stageViewFallbackTimeoutId) {
+      GLib.Source.remove(this._stageViewFallbackTimeoutId);
+      this._stageViewFallbackTimeoutId = null;
     }
 
     if (this._settingsWatchingListIds.length && this._settings) {
@@ -218,7 +428,7 @@ export const QuakeMode = class {
       });
     }
 
-    if (this.actor && this._actorStageViewChangedId) {
+    if (this._actorStageViewChangedId && this.actor) {
       this.actor.disconnect(this._actorStageViewChangedId);
       this._actorStageViewChangedId = null;
     }
@@ -226,6 +436,11 @@ export const QuakeMode = class {
     if (this._appWindowUnmanagedId && this.appWindow) {
       this.appWindow.disconnect(this._appWindowUnmanagedId);
       this._appWindowUnmanagedId = null;
+    }
+
+    if (this._appWindowMinimizedId && this.appWindow) {
+      this.appWindow.disconnect(this._appWindowMinimizedId);
+      this._appWindowMinimizedId = null;
     }
 
     if (this._appChangedId && this._app) {
@@ -238,18 +453,41 @@ export const QuakeMode = class {
       this._appWindowFocusId = null;
     }
 
+    if (this._workspaceChangedId) {
+      Shell.Global.get().workspace_manager.disconnect(this._workspaceChangedId);
+      this._workspaceChangedId = null;
+    }
+
     if (this._wmMapSignalId) {
       Shell.Global.get().window_manager.disconnect(this._wmMapSignalId);
       this._wmMapSignalId = null;
     }
 
+    if (this._overviewHidingId) {
+      Main.overview.disconnect(this._overviewHidingId);
+      this._overviewHidingId = null;
+    }
+
+    if (this._overviewHiddenId) {
+      Main.overview.disconnect(this._overviewHiddenId);
+      this._overviewHiddenId = null;
+    }
+
+    if (this._overviewShowRetryId) {
+      Main.overview.disconnect(this._overviewShowRetryId);
+      this._overviewShowRetryId = null;
+    }
+
     this._settingsWatchingListIds = [];
     this._app = null;
     this._appWindow = null;
-    this._internalState = QuakeMode.LIFECYCLE.DEAD;
     this._isTaskbarConfigured = null;
-    // @ts-ignore
-    Main.wm._shouldAnimateActor = this._original_shouldAnimateActor;
+
+    quakeModeInstances.delete(this);
+
+    if (!quakeModeInstances.size) {
+      uninstallCloseAnimationPatch();
+    }
   }
 
   /**
@@ -261,7 +499,16 @@ export const QuakeMode = class {
     if (!this.appWindow) {
       try {
         await this._launchAppWindow();
-        this._adjustAppWindowPosition();
+
+        /**
+         * When the `map` signal was missed, _adjustAppWindowPosition() advances
+         * straight to RUNNING and shows the window synchronously. Running the
+         * focus/hide/show logic below on top of that would immediately undo the
+         * show, since the window is now focused.
+         */
+        if (this._adjustAppWindowPosition()) {
+          return;
+        }
       } catch (error) {
         console.log(`*** QuakeAnyApp@toggle - Catch error ${error} ***`);
         this.destroy();
@@ -307,9 +554,6 @@ export const QuakeMode = class {
     const promiseTerminalWindowInLessThanFiveSeconds = new Promise(
       (resolve, reject) => {
         const shellAppWindowsChangedHandler = () => {
-          GLib.Source.remove(this._sourceTimeoutLoopId);
-          this._sourceTimeoutLoopId = null;
-
           if (!this._app) {
             return reject(
               Error(
@@ -318,9 +562,22 @@ export const QuakeMode = class {
             );
           }
 
+          /**
+           * The application keeps emitting `windows-changed` for every window
+           * it opens or closes afterwards. Bail out before touching the startup
+           * timeout, whose source is already gone by then.
+           */
           if (this._internalState !== QuakeMode.LIFECYCLE.STARTING) {
-            this._app.disconnect(this._appChangedId);
+            if (this._appChangedId) {
+              this._app.disconnect(this._appChangedId);
+              this._appChangedId = null;
+            }
             return;
+          }
+
+          if (this._sourceTimeoutLoopId) {
+            GLib.Source.remove(this._sourceTimeoutLoopId);
+            this._sourceTimeoutLoopId = null;
           }
 
           if (this._app.get_n_windows() < 1) {
@@ -331,14 +588,34 @@ export const QuakeMode = class {
             );
           }
 
-          const ourWindow = this._app.get_windows()[0];
+          /**
+           * Pick a window that no other slot has claimed yet. Taking
+           * `get_windows()[0]` blindly lets two slots pointing at the same
+           * application steal each other's window, since that list is ordered
+           * by user time and not by creation.
+           */
+          const ourWindow = this._app.get_windows().find((w) => {
+            const candidate = w.get_compositor_private();
+            return (
+              candidate && !candidate.get_name()?.startsWith(ACTOR_NAME_PREFIX)
+            );
+          });
+
+          if (!ourWindow) {
+            return reject(
+              Error(
+                `Quake-AnyApp - App '${this._app.id}' has no unclaimed window`
+              )
+            );
+          }
+
           /**
            * The window actor for this terminal window.
            *
            * @type {Meta.WindowActor & { ease: Function }}
            */
           const actor = ourWindow.get_compositor_private();
-          actor.set_name(`quake-any-app-${this._slotId}`);
+          actor.set_name(`${ACTOR_NAME_PREFIX}${this._slotId}`);
           this._appWindow = ourWindow;
           this._internalState = QuakeMode.LIFECYCLE.CREATED_ACTOR;
 
@@ -347,19 +624,8 @@ export const QuakeMode = class {
 
           this._handleAlwaysOnTop();
 
-          this._appWindowUnmanagedId = this.appWindow.connect(
-            "unmanaged",
-            () => {
-              this.destroy();
-            }
-          );
+          this._connectWindowSignals();
 
-          this._appWindowFocusId = Shell.Global.get().display.connect(
-            "notify::focus-window",
-            (source) => {
-              this._handleHideOnFocusLoss(source);
-            }
-          );
           resolve(true);
         };
 
@@ -387,6 +653,7 @@ export const QuakeMode = class {
           GLib.PRIORITY_DEFAULT,
           STARTUP_TIMER_IN_SECONDS,
           () => {
+            this._sourceTimeoutLoopId = null;
             cancellable.cancel();
             reject(
               Error(
@@ -403,15 +670,187 @@ export const QuakeMode = class {
   }
 
   /**
-   * Adjusts the terminal window's initial position and handles signal connections related
-   * to window mapping and sizing.
+   * Connects every signal that tracks the managed window.
+   *
+   * Called both when the window is launched and when an existing one is
+   * adopted after a disable/enable cycle. Each connection is guarded so it is
+   * safe to call more than once.
    */
-  _adjustAppWindowPosition() {
-    if (!this.appWindow || !this.actor) {
+  _connectWindowSignals() {
+    const appWindow = this._appWindow;
+
+    if (!appWindow) {
       return;
     }
 
+    if (!this._appWindowUnmanagedId) {
+      this._appWindowUnmanagedId = appWindow.connect("unmanaged", () => {
+        this.destroy();
+      });
+    }
+
+    if (!this._appWindowMinimizedId) {
+      /**
+       * Hiding leaves the actor fully transparent and Clutter-hidden, and
+       * nothing in GNOME restores either of those: `_minimizeWindowDone` only
+       * resets opacity when the minimize animation actually ran, and we skip
+       * it. So a window brought back by anything other than our own shortcut
+       * (Alt+Tab, a click in the overview, another app activating it) would be
+       * focused but invisible. Undo it here.
+       */
+      this._appWindowMinimizedId = appWindow.connect(
+        "notify::minimized",
+        () => {
+          if (appWindow.minimized || !this._shouldBeHidden) {
+            return;
+          }
+
+          this._shouldBeHidden = false;
+
+          if (!this.actor) {
+            return;
+          }
+
+          this.actor.remove_all_transitions();
+          this.actor.translation_x = 0;
+          this.actor.translation_y = 0;
+          this.actor.opacity = 255;
+          this.actor.show();
+        }
+      );
+    }
+
+    if (!this._appWindowFocusId) {
+      this._appWindowFocusId = Shell.Global.get().display.connect(
+        "notify::focus-window",
+        (source) => {
+          this._handleHideOnFocusLoss(source);
+        }
+      );
+    }
+
+    if (!this._workspaceChangedId) {
+      this._workspaceChangedId = Shell.Global.get().workspace_manager.connect(
+        "active-workspace-changed",
+        () => {
+          if (!this.appWindow) {
+            return;
+          }
+          const activeWorkspace =
+            Shell.Global.get().workspace_manager.get_active_workspace();
+          if (this.appWindow.is_hidden()) {
+            // Move hidden window to new workspace so it's accessible from there
+            this.appWindow.change_workspace(activeWorkspace);
+            return;
+          }
+          // Same state the hide animation leaves behind, so keep the flag in
+          // sync - the overview guard below relies on it.
+          this._shouldBeHidden = true;
+          if (this.actor) {
+            Main.wm.skipNextEffect(this.actor);
+            this.actor.translation_x = 0;
+            this.actor.translation_y = 0;
+            this.actor.opacity = 0;
+            this.actor.hide();
+          }
+          this.appWindow.minimize();
+          this.appWindow.unstick();
+          this.appWindow.change_workspace(activeWorkspace);
+        }
+      );
+    }
+
+    // When Overview exits, GNOME Shell may call actor.show() on all window actors
+    // or restore opacity — even for minimized windows. We intercept both
+    // "hiding" (animation starts) and "hidden" (animation ends) to keep our
+    // window invisible throughout the entire transition.
+    const enforceHiddenState = () => {
+      if (!this.appWindow || !this.actor || !this._shouldBeHidden) {
+        return;
+      }
+      this.actor.remove_all_transitions();
+      this.actor.translation_x = 0;
+      this.actor.translation_y = 0;
+      this.actor.opacity = 0;
+      // Use Clutter-level hide so GNOME Shell cannot accidentally reveal
+      // this actor during overview transitions or workspace animations.
+      this.actor.hide();
+      if (!this.appWindow.is_hidden()) {
+        Main.wm.skipNextEffect(this.actor);
+        this.appWindow.minimize();
+      }
+    };
+
+    if (!this._overviewHidingId) {
+      this._overviewHidingId = Main.overview.connect(
+        "hiding",
+        enforceHiddenState
+      );
+    }
+
+    if (!this._overviewHiddenId) {
+      this._overviewHiddenId = Main.overview.connect(
+        "hidden",
+        enforceHiddenState
+      );
+    }
+  }
+
+  /**
+   * Adjusts the app window's initial position and handles signal connections
+   * related to window mapping and sizing.
+   *
+   * @returns {boolean} True when the window was advanced to RUNNING immediately.
+   */
+  _adjustAppWindowPosition() {
+    if (!this.appWindow || !this.actor) {
+      return false;
+    }
+
     this.appWindow.stick();
+
+    /**
+     * Defined at this scope so both the `stage-views-changed` handler and the
+     * fallback timer below can reach it. Whichever fires first cancels the
+     * other and performs the CREATED_ACTOR → RUNNING transition.
+     */
+    const advanceToRunning = () => {
+      if (this._stageViewFallbackTimeoutId) {
+        GLib.Source.remove(this._stageViewFallbackTimeoutId);
+        this._stageViewFallbackTimeoutId = null;
+      }
+
+      if (this._actorStageViewChangedId && this.actor) {
+        this.actor.disconnect(this._actorStageViewChangedId);
+        this._actorStageViewChangedId = null;
+      }
+
+      if (this._wmMapSignalId) {
+        Shell.Global.get().window_manager.disconnect(this._wmMapSignalId);
+        this._wmMapSignalId = null;
+      }
+
+      if (this._internalState !== QuakeMode.LIFECYCLE.CREATED_ACTOR) {
+        return;
+      }
+
+      this._internalState = QuakeMode.LIFECYCLE.RUNNING;
+      this._fitWindowToMonitor();
+      this._showWindowWithAnimation();
+    };
+
+    if (this.actor.is_mapped()) {
+      /**
+       * The `map` signal already fired before we could connect to it. By the
+       * time the actor is mapped its stage views have settled as well, so
+       * `stage-views-changed` will never fire again for it and waiting would
+       * leave this slot stuck in CREATED_ACTOR forever.
+       */
+      this.actor.opacity = 0;
+      Shell.Global.get().window_manager.emit("kill-window-effects", this.actor);
+      advanceToRunning();
+      return true;
+    }
 
     const mapSignalHandler = (
       /** @type {Shell.WM} */ wm,
@@ -441,14 +880,7 @@ export const QuakeMode = class {
       this._actorStageViewChangedId = this.actor.connect(
         "stage-views-changed",
         () => {
-          if (this._internalState !== QuakeMode.LIFECYCLE.CREATED_ACTOR) {
-            this.actor.disconnect(this._actorStageViewChangedId);
-            this._actorStageViewChangedId = null;
-            return;
-          }
-
-          this._internalState = QuakeMode.LIFECYCLE.RUNNING;
-          this._showWindowWithAnimation();
+          advanceToRunning();
         }
       );
 
@@ -459,6 +891,18 @@ export const QuakeMode = class {
       "map",
       mapSignalHandler
     );
+
+    this._stageViewFallbackTimeoutId = GLib.timeout_add_seconds(
+      GLib.PRIORITY_DEFAULT,
+      CREATED_ACTOR_TIMEOUT_IN_SECONDS,
+      () => {
+        this._stageViewFallbackTimeoutId = null;
+        advanceToRunning();
+        return GLib.SOURCE_REMOVE;
+      }
+    );
+
+    return false;
   }
 
   _shouldAvoidAnimation() {
@@ -474,11 +918,32 @@ export const QuakeMode = class {
       return;
     }
 
+    // Mark window as intentionally visible before any overview checks
+    this._shouldBeHidden = false;
+
+    // Re-stick the window so it's visible on all workspaces while open
+    this.appWindow.stick();
+
+    if (Main.overview.visible) {
+      if (!this._overviewShowRetryId) {
+        this._overviewShowRetryId = Main.overview.connect("hidden", () => {
+          Main.overview.disconnect(this._overviewShowRetryId);
+          this._overviewShowRetryId = null;
+          this._showWindowWithAnimation();
+        });
+      }
+      Main.overview.hide();
+      return;
+    }
+
     const parent = this.actor.get_parent();
 
     if (!parent) {
       return;
     }
+
+    // Restore Clutter-level visibility (we called actor.hide() when hiding).
+    this.actor.show();
 
     parent.set_child_above_sibling(this.actor, null);
 
@@ -529,10 +994,26 @@ export const QuakeMode = class {
       mode: Clutter.AnimationMode.EASE_OUT_QUAD,
       duration: this._settings.get_int("animation-time"),
       onComplete: () => {
+        if (!this.actor) {
+          return;
+        }
+        this._shouldBeHidden = true;
         Main.wm.skipNextEffect(this.actor);
         this.actor.meta_window.minimize();
         this.actor.translation_x = 0;
         this.actor.translation_y = 0;
+        this.actor.opacity = 0;
+        // Explicitly hide via Clutter so GNOME Shell cannot restore this actor
+        // during overview or workspace transitions (skipNextEffect alone does not
+        // call actor.hide() when it skips the minimize animation).
+        this.actor.hide();
+        // Unstick the window so it doesn't appear in workspace switch animations
+        if (this.appWindow) {
+          this.appWindow.unstick();
+          const activeWorkspace =
+            Shell.Global.get().workspace_manager.get_active_workspace();
+          this.appWindow.change_workspace(activeWorkspace);
+        }
       },
     };
 
@@ -640,6 +1121,11 @@ export const QuakeMode = class {
 
   _configureSkipTaskbarProperty() {
     const appWindow = this.appWindow;
+
+    if (!appWindow) {
+      return;
+    }
+
     const shouldSkipTaskbar = this._settings.get_boolean(`skip-taskbar-${this._slotId}`);
 
     Object.defineProperty(appWindow, "skip_taskbar", {
@@ -656,78 +1142,8 @@ export const QuakeMode = class {
     this._isTaskbarConfigured = true;
   }
 
-  _configureActorCloseAnimation() {
-    /** We will use `self` to refer to the extension inside the patched method. */
-    const self = this;
-
-    // @ts-ignore
-    Main.wm._shouldAnimateActor = function (
-      /**
-       * @type {Meta.WindowActor & { ease: Function }}
-       */
-      actor,
-      /** @type {any} */ types
-    ) {
-      const stack = new Error().stack;
-      const forClosing = stack.includes("_destroyWindow@");
-
-      /**
-       * We specifically handle window closing events, but only when our actor is the target.
-       * For all other cases, the original behavior remains in effect.
-       */
-      if (!forClosing || actor !== self.actor) {
-        return self._original_shouldAnimateActor.apply(this, [actor, types]);
-      }
-
-      /** Store the original ease() method of the terminal actor. */
-      const originalActorAnimate = actor.ease;
-
-      /**
-       * Intercept the next call to actor.animate() to perform a custom close animation
-       * based on screen edge. Afterward, immediately restore the original behavior.
-       */
-      actor.ease = function () {
-        actor.ease = originalActorAnimate;
-
-        const screenEdge = self._settings.get_string(`screen-edge-${self._slotId}`);
-        const easeParams = {
-          mode: Clutter.AnimationMode.EASE_OUT_QUAD,
-          duration: self._settings.get_int("animation-time"),
-          onComplete: () => {
-            // @ts-ignore
-            Main.wm._destroyWindowDone(Main.wm._shellwm, actor);
-          },
-        };
-
-        // Set animation direction based on screen edge
-        switch (screenEdge) {
-          case "top":
-            easeParams.translation_y = actor.height * -1;
-            easeParams.translation_x = 0;
-            break;
-          case "bottom":
-            easeParams.translation_y = actor.height;
-            easeParams.translation_x = 0;
-            break;
-          case "left":
-            easeParams.translation_x = actor.width * -1;
-            easeParams.translation_y = 0;
-            break;
-          case "right":
-            easeParams.translation_x = actor.width;
-            easeParams.translation_y = 0;
-            break;
-        }
-
-        originalActorAnimate.call(actor, easeParams);
-      };
-
-      return true;
-    };
-  }
-
   /**
-   * Hides the terminal when it loses focus.
+   * Hides the window when it loses focus.
    *
    * @param {Meta.Display} source - The display object.
    */
@@ -742,6 +1158,22 @@ export const QuakeMode = class {
       return;
     }
 
+    if (!this.appWindow) {
+      return;
+    }
+
+    /**
+     * Already hidden - every focus change between other windows would
+     * otherwise replay the hide animation and its workspace bookkeeping.
+     */
+    if (this._shouldBeHidden || this.appWindow.is_hidden()) {
+      return;
+    }
+
+    if (isWlClipboard(source.focus_window)) {
+      return;
+    }
+
     if (source.focus_window === this.appWindow) {
       return;
     }
@@ -750,18 +1182,24 @@ export const QuakeMode = class {
   }
 
   _handleAlwaysOnTop() {
+    const appWindow = this.appWindow;
+
+    if (!appWindow) {
+      return;
+    }
+
     const shouldAlwaysOnTop = this._settings.get_boolean(`always-on-top-${this._slotId}`);
 
-    if (!shouldAlwaysOnTop && !this.appWindow.is_above()) {
+    if (!shouldAlwaysOnTop && !appWindow.is_above()) {
       return;
     }
 
-    if (!shouldAlwaysOnTop && this.appWindow.is_above()) {
-      this.appWindow.unmake_above();
+    if (!shouldAlwaysOnTop && appWindow.is_above()) {
+      appWindow.unmake_above();
       return;
     }
 
-    this.appWindow.make_above();
+    appWindow.make_above();
   }
 
   /**
