@@ -1,3 +1,10 @@
+## [1.2.1](https://github.com/AllYouZombies/quake-any-app/compare/v1.2.0...v1.2.1) (2026-07-24)
+
+
+### Bug Fixes
+
+* undo everything we touch when the extension is disabled ([1025fd8](https://github.com/AllYouZombies/quake-any-app/commit/1025fd8c243dc76e6700fc38f3ca9d305274998a))
+
 # [1.2.0](https://github.com/AllYouZombies/quake-any-app/compare/v1.1.0...v1.2.0) (2026-07-24)
 
 
